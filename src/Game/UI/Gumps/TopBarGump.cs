@@ -1,0 +1,290 @@
+﻿#region license
+
+//  Copyright (C) 2019 ClassicUO Development Community on Github
+//
+//	This project is an alternative client for the game Ultima Online.
+//	The goal of this is to develop a lightweight client considering 
+//	new technologies.  
+//      
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#endregion
+
+using ClassicUO.Game.Data;
+using ClassicUO.Game.GameObjects;
+using ClassicUO.Game.UI.Controls;
+using ClassicUO.Input;
+using ClassicUO.Utility.Logging;
+
+using Microsoft.Xna.Framework;
+
+namespace ClassicUO.Game.UI.Gumps
+{
+    internal class TopBarGump : Gump
+    {
+        private TopBarGump() : base(0, 0)
+        {
+            CanMove = true;
+            AcceptMouseInput = true;
+            CanCloseWithRightClick = false;
+
+            // maximized view
+            Add(new ResizePic(9200)
+            {
+                X = 0, Y = 0, Width = 579, Height = 27
+            }, 1);
+
+            Add(new Button(0, 5540, 5542, 5541)
+            {
+                ButtonAction = ButtonAction.SwitchPage, ToPage = 2, X = 5, Y = 3
+            }, 1);
+
+            Add(new Button((int) Buttons.Map, 2443, 2443, 0, "地圖", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 30, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Paperdoll, 2443, 2443, 0, "紙娃娃", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 93, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Inventory, 2443, 2443, 0, "背包", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 156, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Journal, 2443, 2443, 0, "日誌", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 219, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Chat, 2443, 2443, 0, "聊天", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 282, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Help, 2443, 2443, 0, "幫助", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 345, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int) Buttons.Debug, 2443, 2443, 0, "調試", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate, X = 408, Y = 3, FontCenter = true
+            }, 1);
+
+            Add(new Button((int)Buttons.WorldMap, 2445, 2445, 0, "世界地圖", 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate,
+                X = 471,
+                Y = 3,
+                FontCenter = true
+            }, 1);
+
+            //minimized view
+            Add(new ResizePic(9200)
+            {
+                X = 0,
+                Y = 0,
+                Width = 30,
+                Height = 27
+            }, 2);
+
+            Add(new Button(0, 5537, 5539, 5538)
+            {
+                ButtonAction = ButtonAction.SwitchPage,
+                ToPage = 1,
+                X = 5,
+                Y = 3
+            }, 2);
+
+            //layer
+            ControlInfo.Layer = UILayer.Over;
+        }
+
+        public bool IsMinimized { get; private set; }
+
+        //private static TopBarGump _gump;
+
+        public static void Create()
+        {
+            TopBarGump gump = Engine.UI.GetGump<TopBarGump>();
+
+            if (gump == null)
+            {
+                if (Engine.Profile.Current.TopbarGumpPosition.X < 0 || Engine.Profile.Current.TopbarGumpPosition.Y < 0)
+                    Engine.Profile.Current.TopbarGumpPosition = Point.Zero;
+
+                Engine.UI.Add(gump = new TopBarGump
+                {
+                    X = Engine.Profile.Current.TopbarGumpPosition.X,
+                    Y = Engine.Profile.Current.TopbarGumpPosition.Y
+                });
+
+                if (Engine.Profile.Current.TopbarGumpIsMinimized)
+                    gump.ChangePage(2);
+            }
+            else
+                Log.Message(LogTypes.Error, "菜單條已經在了!!");
+        }
+
+        protected override void OnMouseUp(int x, int y, MouseButton button)
+        {
+            if (button == MouseButton.Right && (X != 0 || Y != 0))
+            {
+                X = 0;
+                Y = 0;
+
+                Engine.Profile.Current.TopbarGumpPosition = Location;
+            }
+        }
+
+        public override void OnPageChanged()
+        {
+            Engine.Profile.Current.TopbarGumpIsMinimized = IsMinimized = ActivePage == 2;
+            WantUpdateSize = true;
+        }
+
+        protected override void OnDragEnd(int x, int y)
+        {
+            base.OnDragEnd(x, y);
+            Engine.Profile.Current.TopbarGumpPosition = Location;
+        }
+
+        public override void OnButtonClick(int buttonID)
+        {
+            switch ((Buttons) buttonID)
+            {
+                case Buttons.Map:
+                    MiniMapGump miniMapGump = Engine.UI.GetGump<MiniMapGump>();
+
+                    if (miniMapGump == null)
+                        Engine.UI.Add(new MiniMapGump());
+                    else
+                    {
+                        miniMapGump.SetInScreen();
+                        miniMapGump.BringOnTop();
+                    }
+
+                    break;
+
+                case Buttons.Paperdoll:
+                    PaperDollGump paperdollGump = Engine.UI.GetGump<PaperDollGump>(World.Player);
+
+                    if (paperdollGump == null)
+                        GameActions.OpenPaperdoll(World.Player);
+                    else
+                    {
+                        paperdollGump.SetInScreen();
+                        paperdollGump.BringOnTop();
+                    }
+
+                    break;
+
+                case Buttons.Inventory:
+                    Item backpack = World.Player.Equipment[(int) Layer.Backpack];
+
+                    ContainerGump backpackGump = Engine.UI.GetGump<ContainerGump>(backpack);
+
+                    if (backpackGump == null)
+                        GameActions.DoubleClick(backpack);
+                    else
+                    {
+                        backpackGump.SetInScreen();
+                        backpackGump.BringOnTop();
+                    }
+
+                    break;
+
+                case Buttons.Journal:
+                    JournalGump journalGump = Engine.UI.GetGump<JournalGump>();
+
+                    if (journalGump == null)
+                    {
+                        Engine.UI.Add(new JournalGump
+                                          {X = 64, Y = 64});
+                    }
+                    else
+                    {
+                        journalGump.SetInScreen();
+                        journalGump.BringOnTop();
+                    }
+
+                    break;
+
+                case Buttons.Chat:
+                    Log.Message(LogTypes.Warning, "Chat button pushed! Not implemented yet!");
+
+                    break;
+
+                case Buttons.Help:
+                    GameActions.RequestHelp();
+
+                    break;
+
+                case Buttons.Debug:
+
+                    DebugGump debugGump = Engine.UI.GetGump<DebugGump>();
+
+                    if (debugGump == null)
+                    {
+                        debugGump = new DebugGump
+                        {
+                            X = Engine.Profile.Current.DebugGumpPosition.X,
+                            Y = Engine.Profile.Current.DebugGumpPosition.Y
+                        };
+
+                        Engine.UI.Add(debugGump);
+                    }
+                    else
+                    {
+                        debugGump.IsVisible = !debugGump.IsVisible;
+                        debugGump.SetInScreen();
+                    }
+
+                    Engine.DropFpsMinMaxValues();
+
+                    break;
+                case Buttons.WorldMap:
+
+                    WorldMapGump worldMap = Engine.UI.GetGump<WorldMapGump>();
+
+                    if (worldMap == null || worldMap.IsDisposed)
+                    {
+                        worldMap = new WorldMapGump();
+                        Engine.UI.Add(worldMap);
+                    }
+                    else
+                    {
+                        worldMap.BringOnTop();
+                        worldMap.SetInScreen();
+                    }
+                    break;
+            }
+        }
+
+        private enum Buttons
+        {
+            Map,
+            Paperdoll,
+            Inventory,
+            Journal,
+            Chat,
+            Help,
+            Debug,
+            WorldMap,
+        }
+    }
+}
