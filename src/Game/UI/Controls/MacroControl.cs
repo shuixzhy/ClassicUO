@@ -53,8 +53,8 @@ namespace ClassicUO.Game.UI.Controls
 
             Add(box);
 
-            Add(new NiceButton(0, box.Height + 3, 50, 25, ButtonAction.Activate, "添加") {IsSelectable = false});
-            Add(new NiceButton(52, box.Height + 3, 50, 25, ButtonAction.Activate, "刪除") {ButtonParameter = 1, IsSelectable = false});
+            Add(new NiceButton(0, box.Height + 3, 50, 25, ButtonAction.Activate, Language.Language.UI_Add) {IsSelectable = false});
+            Add(new NiceButton(52, box.Height + 3, 50, 25, ButtonAction.Activate, Language.Language.UI_Delete) {ButtonParameter = 1, IsSelectable = false});
             
 
             Add(_collection = new MacroCollectionControl(name, 280, 280)
@@ -77,7 +77,7 @@ namespace ClassicUO.Game.UI.Controls
 
                 box.SetKey(_collection.Macro.Key, mod);
             }
-            _checkbox = new Checkbox(0x00D2, 0x00D3, "循環執行（再次按下或其他建鍵終止）", 0xFF, 999)
+            _checkbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Macro_Repeat, 0xFF, 999)
             {
                 IsChecked = _collection.Macro.Repeat
             };
@@ -109,7 +109,7 @@ namespace ClassicUO.Game.UI.Controls
 
             if (Engine.SceneManager.GetScene<GameScene>().Macros.FindMacro(b.Key, alt, ctrl, shift) != null)
             {
-                MessageBoxGump gump = new MessageBoxGump(250, 250, "This key combination\nalready exists.", s => { b.SetKey(SDL.SDL_Keycode.SDLK_UNKNOWN, SDL.SDL_Keymod.KMOD_NONE); });
+                MessageBoxGump gump = new MessageBoxGump(250, 150, Language.Language.UI_Macro_Exists, s => { b.SetKey(SDL.SDL_Keycode.SDLK_UNKNOWN, SDL.SDL_Keymod.KMOD_NONE); });
                 Engine.UI.Add(gump);
             }
             else

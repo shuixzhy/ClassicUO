@@ -115,7 +115,7 @@ namespace ClassicUO.Game.UI.Gumps.Login
             _checkboxSaveAccount.IsChecked = Engine.GlobalSettings.SaveAccount;
             _checkboxAutologin.IsChecked = Engine.GlobalSettings.AutoLogin;
 
-            Add(new Label("Welcom to NewBie UO", false, 0x0386, font: 2)
+            Add(new Label("Welcom to Ultima Online", false, 0x0386, font: 2)
             {
                 X = 253,
                 Y = 305

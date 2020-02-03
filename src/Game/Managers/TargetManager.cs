@@ -42,7 +42,9 @@ namespace ClassicUO.Game.Managers
         SetTargetClientSide = 3,
         Grab,
         SetGrabBag,
-        HueCommandTarget
+        HueCommandTarget,
+        AddToLootlist,
+        AddToSelllist
     }
 
     internal class CursorType
@@ -87,6 +89,8 @@ namespace ClassicUO.Game.Managers
         public static CursorTarget TargetingState { get; private set; } = CursorTarget.Invalid;
 
         public static Serial LastTarget { get; set; }
+        public static Serial LastHarmfulTarget { get; set; }
+        public static Serial LastBeneficialTarget { get; set; }
 
         public static Serial LastAttack { get; set; }
 
@@ -129,6 +133,7 @@ namespace ClassicUO.Game.Managers
             {
                 CancelTarget();
             }
+       
         }
 
         public static void EnqueueAction(Action<Serial, Graphic, ushort, ushort, sbyte, bool> action)
@@ -198,15 +203,38 @@ namespace ClassicUO.Game.Managers
 
                 return;
             }
-
+            
             if (selectedEntity is Entity entity)
             {
+                Mobile m = World.Mobiles.Get(entity);
                 if (selectedEntity != World.Player)
                 {
                     Engine.UI.RemoveTargetLineGump(LastAttack);
                     Engine.UI.RemoveTargetLineGump(LastTarget);
                     LastTarget = entity.Serial;
-                }
+                    if (m != null)
+                    {
+                        switch (m.NotorietyFlag)
+                        {
+                            case NotorietyFlag.Ally:
+                            case NotorietyFlag.Innocent:
+                                LastBeneficialTarget = entity.Serial;
+                                break;
+                            case NotorietyFlag.Enemy:
+                            case NotorietyFlag.Gray:
+                            case NotorietyFlag.Murderer:
+                            case NotorietyFlag.Unknown:
+                            case NotorietyFlag.Criminal:
+                           
+                                LastHarmfulTarget = entity.Serial;
+                                break;
+                        }
+                 
+                        
+                        
+                        
+                    }
+                 }
 
                 if (_enqueuedAction != null)
                     _enqueuedAction(entity.Serial, entity.Graphic, entity.X, entity.Y, entity.Z, entity is Item it && it.OnGround || entity.Serial.IsMobile);
@@ -214,10 +242,11 @@ namespace ClassicUO.Game.Managers
                 {
                     if (Engine.Profile.Current.EnabledCriminalActionQuery && TargeringType == TargetType.Harmful)
                     {
-                        Mobile m = World.Mobiles.Get(entity);
+                        
 
                         if (m != null && (World.Player.NotorietyFlag == NotorietyFlag.Innocent || World.Player.NotorietyFlag == NotorietyFlag.Ally) && m.NotorietyFlag == NotorietyFlag.Innocent && m != World.Player)
                         {
+                            
                             QuestionGump messageBox = new QuestionGump("This may flag\nyou criminal!",
                                                                        s =>
                                                                        {
@@ -333,7 +362,7 @@ namespace ClassicUO.Game.Managers
             return true;
         }
 
-        public static void SetLastTarget(Serial serial)
+        public static void SetLastTarget(Serial serial, int type)
         {
             Mobile target = World.Mobiles.Get(serial);
 
@@ -344,6 +373,10 @@ namespace ClassicUO.Game.Managers
             Engine.UI.RemoveTargetLineGump(TargetManager.LastTarget);
             Engine.UI.RemoveTargetLineGump(TargetManager.LastAttack);
             TargetManager.LastTarget = target.Serial;
+            if (type == 2 || type == 1)
+                LastBeneficialTarget = target.Serial;
+            if (type == 0)
+                LastHarmfulTarget = target.Serial;
             Engine.UI.SetTargetLineGump(TargetManager.LastTarget);
         }
 
@@ -381,27 +414,27 @@ namespace ClassicUO.Game.Managers
                 target = firstMobile;
 
             if (target != null)
-                SetLastTarget(target.Serial);
+                SetLastTarget(target.Serial,type);
             else
             {
-                string findobj = "东西";
+                string findobj = Language.Language.UI_Public_Mobile;
                 switch (type)
                 {
                     case 0:
-                        findobj = "敵人";
+                        findobj = Language.Language.UI_Public_Enemy;
                         break;
                     case 1:
-                        findobj = "隊友";
+                        findobj = Language.Language.UI_Public_Party;
                         break;
                     case 2:
-                        findobj = "寶寶";
+                        findobj = Language.Language.UI_Public_Follower;
                         break;
                     case 3:
-                        findobj = "物品";
+                        findobj = Language.Language.UI_Public_Obj;
                         break;
                 }
 
-                GameActions.Print("附近沒有找到" + findobj + "。");
+                GameActions.Print(Language.Language.UI_Public_FindObj + findobj);
             }
         }
 
@@ -435,27 +468,27 @@ namespace ClassicUO.Game.Managers
                 target = lastMobile;
 
             if (target != null)
-                SetLastTarget(target.Serial);
+                SetLastTarget(target.Serial, type);
             else
             {
-                string findobj = "东西";
+                string findobj = Language.Language.UI_Public_Mobile;
                 switch (type)
                 {
                     case 0:
-                        findobj = "敵人";
+                        findobj = Language.Language.UI_Public_Enemy;
                         break;
                     case 1:
-                        findobj = "隊友";
+                        findobj = Language.Language.UI_Public_Party;
                         break;
                     case 2:
-                        findobj = "寶寶";
+                        findobj = Language.Language.UI_Public_Follower;
                         break;
                     case 3:
-                        findobj = "物品";
+                        findobj = Language.Language.UI_Public_Obj;
                         break;
                 }
 
-                GameActions.Print("附近沒有找到" + findobj + "。");
+                GameActions.Print(Language.Language.UI_Public_FindObj + findobj);
             }
         }
 
@@ -515,27 +548,27 @@ namespace ClassicUO.Game.Managers
             //    target = firstMobile;
 
             if (target != null)
-                SetLastTarget(target.Serial);
+                SetLastTarget(target.Serial, type);
             else
             {
-                string findobj = "东西";
+                string findobj = Language.Language.UI_Public_Mobile ;
                 switch (type)
                 {
                     case 0:
-                        findobj = "敵人";
+                        findobj = Language.Language.UI_Public_Enemy;
                         break;
                     case 1:
-                        findobj = "隊友";
+                        findobj = Language.Language.UI_Public_Party;
                         break;
                     case 2:
-                        findobj = "寶寶";
+                        findobj = Language.Language.UI_Public_Follower;
                         break;
                     case 3:
-                        findobj = "物品";
+                        findobj = Language.Language.UI_Public_Obj;
                         break;
                 }
 
-                GameActions.Print("附近沒有找到"+findobj+"。");
+                GameActions.Print(Language.Language.UI_Public_FindObj + findobj);
             }
                 
         }

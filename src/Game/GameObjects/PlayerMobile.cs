@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
@@ -42,7 +42,8 @@ namespace ClassicUO.Game.GameObjects
     internal class PlayerMobile : Mobile
     {
         private readonly Dictionary<Graphic, BuffIcon> _buffIcons = new Dictionary<Graphic, BuffIcon>();
-
+        //private readonly static int DELAY = 500;
+        private static Thread th;
         public PlayerMobile(Serial serial) : base(serial)
         {
             Skills = new Skill[FileManager.Skills.SkillsCount];
@@ -53,7 +54,10 @@ namespace ClassicUO.Game.GameObjects
                 Skills[i] = new Skill(skill.Name, skill.Index, skill.HasAction);
             }
         }
-
+        //private static int count = 0;
+       // private static long _time ;
+        private Item _corpse;
+       // private static bool looting = false;
         public Skill[] Skills { get; }
 
         public override bool InWarMode { get; set; }
@@ -1258,7 +1262,9 @@ namespace ClassicUO.Game.GameObjects
             Plugin.UpdatePlayerPosition(X, Y, Z);
 
             TryOpenDoors();
+            //GetGold();
             TryOpenCorpses();
+            //LootThread();
         }
 
         public void TryOpenCorpses()
@@ -1279,6 +1285,154 @@ namespace ClassicUO.Game.GameObjects
             }
         }
 
+        //public void AutoLoot()
+        //{
+
+        //    looting = true;
+        //    _time = Engine.Ticks;
+        //    GetGold();
+            
+        //}
+        public void LootThread()
+        {
+            if (Engine.Profile.Current.AutoLootDelay < 500)
+                Engine.Profile.Current.AutoLootDelay = 500;
+            if (th == null)
+            {
+                th = new Thread(() =>
+            {
+                LootingGump ltg = new LootingGump(string.Empty);
+                Engine.UI.Add(ltg);
+                ltg.SetInScreen();
+                while (true)
+                { 
+                    while (Engine.Profile.Current.AutoLootGold || Engine.Profile.Current.AutoLootItem)
+                    {
+
+                        if (Engine.Profile.Current.AutoLootGold)
+                        {
+                            bool contain = false;
+                            foreach (var c in World.Items.Where(t => t.IsCoin && t.Distance <= 1))
+                            {
+                                contain = true;
+                                GameActions.GrabItem(c, (ushort)c.Amount);
+                                break;
+                            }
+                            if (contain)
+                            {
+                                Thread.Sleep(Engine.Profile.Current.AutoLootDelay);
+                                continue;
+                            }
+                        }
+                        if (_corpse == null || _corpse.Distance > Engine.Profile.Current.AutoOpenCorpseRange)
+                        {
+                            _corpse = null;
+                            foreach (var c in World.Items.Where(t => t.Graphic == 0x2006 && !LootedCorpses.Contains(t.Serial) && t.Distance <= Engine.Profile.Current.AutoOpenCorpseRange))
+                            {
+                                _corpse = c;
+                                break;
+                            }
+                        }
+                        if (_corpse != null )
+                        {
+                            bool containgold = false;
+                            bool containitem = false;
+                            Item grabitem = null;
+                            ContainerGump gg = Engine.UI.Gumps.OfType<ContainerGump>().FirstOrDefault(s => s.LocalSerial == _corpse.Serial);
+                            GridLootGump gl = Engine.UI.Gumps.OfType<GridLootGump>().FirstOrDefault(s => s.LocalSerial == _corpse.Serial);
+                            if (gg == null && gl == null && _corpse.Items.Count == 0)
+                            {
+                                GameActions.DoubleClickQueued(_corpse.Serial);
+
+                                Thread.Sleep(Engine.Profile.Current.AutoLootDelay);
+                                continue;
+                            }
+                            foreach (Item item in _corpse.Items)
+                            {
+                                //var item = World.Items.Get(s);
+
+                                if (item.IsCoin && Engine.Profile.Current.AutoLootGold)
+                                {
+                                    if (_corpse.Distance <= Engine.Profile.Current.AutoOpenCorpseRange)
+                                    {
+                                        GameActions.GrabItem(item, (ushort)item.Amount);
+                                        grabitem = item;
+                                    }
+                                        containgold = true;
+                                    
+                                    break;
+                                }
+                                if (!Engine.Profile.Current.AutoLootItem)
+                                {
+                                    //containitem = false;
+                                    continue;
+                                }
+                                if (Engine.Profile.Current.LootList == null)
+                                    Engine.Profile.Current.LootList = new List<ushort[]>();
+                                foreach (ushort[] i in Engine.Profile.Current.LootList)
+                                {
+                                    if (item.Graphic == i[0] && item.Hue == i[1])
+                                    {
+                                        containitem = true;
+                                        break;
+                                    }
+
+                                }
+                                if (containitem && Engine.Profile.Current.AutoLootItem)
+                                {
+                                    if (_corpse.Distance <= Engine.Profile.Current.AutoOpenCorpseRange)
+                                    {
+                                        GameActions.GrabItem(item, (ushort)item.Amount);
+                                        grabitem = item;
+                                    }
+                                        break;
+                                    
+                                }
+
+                            }
+
+                            if (containitem || containgold)
+                            {
+
+                                ltg.ChangeName(grabitem.Name);
+                                    ltg.SetInScreen();
+                                    ltg.BringOnTop();
+                                
+                            }
+
+                            if (!containitem && !containgold)
+                            {
+                                ltg.IsVisible = false;
+                                LootedCorpses.Add(_corpse.Serial);
+                            }
+                        }
+                        Thread.Sleep(Engine.Profile.Current.AutoLootDelay);
+
+                    }
+                    Thread.Sleep(Engine.Profile.Current.AutoLootDelay);
+                } });
+
+                th.Start();
+            }
+        }
+      
+        //public void GetGold()
+        //{
+        //    //DateTime curtime = Engine.CurrDateTime;
+        //    //int DELAY = 200;
+
+        //    //if (Engine.Profile.Current.AutoLootGold && (curtime.Millisecond - timer.Millisecond > DELAY))
+        //        foreach (var c in World.Items.Where(t => t.IsCoin && t.Distance <= 1))
+        //        {
+        //        looting = true;
+        //        _time = Engine.Ticks;
+        //        Loot(c);
+
+        //        break;
+        //        }
+        //    //timer = Engine.CurrDateTime;
+        //}
+        
 
         protected override void OnDirectionChanged()
         {
@@ -1385,7 +1539,7 @@ namespace ClassicUO.Game.GameObjects
         public override void Update(double totalMS, double frameMS)
         {
             base.Update(totalMS, frameMS);
-
+            //GetGold();
             /*const int TIME_TURN_TO_LASTTARGET = 2000;
 
             if (InWarMode && Walker.LastStepRequestTime + TIME_TURN_TO_LASTTARGET < Engine.Ticks)
@@ -1482,7 +1636,8 @@ namespace ClassicUO.Game.GameObjects
 
                 direction = newDir;
             }
-
+            if (Engine.Profile.Current.RunFast)
+                walkTime = (ushort)(walkTime * 0.6);
             CloseBank();
 
             if (emptyStack)
@@ -1860,7 +2015,8 @@ namespace ClassicUO.Game.GameObjects
                    || type >= 0x9B3C && type <= 0x9B4B;
         }
 
-        private readonly HashSet<Serial> OpenedCorpses = new HashSet<Serial>();
+        public static HashSet<Serial> OpenedCorpses = new HashSet<Serial>();
+        public static HashSet<Serial> LootedCorpses = new HashSet<Serial>();
 #if JAEDAN_MOVEMENT_PATCH
         public override void ForcePosition(ushort x, ushort y, sbyte z, Direction dir)
         {

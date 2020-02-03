@@ -29,7 +29,7 @@ using ClassicUO.Game.Managers;
 using ClassicUO.Game.UI.Gumps;
 using ClassicUO.Utility;
 using ClassicUO.Utility.Logging;
-
+using ClassicUO.Language;
 using Microsoft.Xna.Framework;
 
 using Newtonsoft.Json;
@@ -51,7 +51,7 @@ namespace ClassicUO.Configuration
         [JsonIgnore] public string Username { get; set; }
         [JsonIgnore] public string ServerName { get; set;  }
         [JsonIgnore] public string CharacterName { get; set;  }
-
+        [JsonProperty] public Languages Language { get; set; } = Languages.English;
         // sounds
         [JsonProperty] public bool EnableSound { get; set; } = true;
         [JsonProperty] public int SoundVolume { get; set; } = 100;
@@ -302,9 +302,15 @@ namespace ClassicUO.Configuration
         [JsonProperty] public int CorpseOpenOptions { get; set; } = 3;
         [JsonProperty] public bool AutoHealSelf { get; set; }
         [JsonProperty] public bool AutoLootGold { get; set; }
+        [JsonProperty] public bool AutoLootItem { get; set; }
+        [JsonProperty] public bool AutoSellItem { get; set; }
         [JsonProperty] public int GridLootType { get; set; } // 0 = none, 1 = only grid, 2 = both
         [JsonProperty] public int CorpseScale { get; set; } = 3;
         [JsonProperty] public int ItemScale { get; set; } = 3;
+        [JsonProperty] public int AutoLootDelay { get; set; } = 500;
+        [JsonProperty] public bool RunFast { get; set; } = false;
+        [JsonProperty] public List<ushort[]> LootList { get; set; } = null;
+        [JsonProperty] public List<ushort[]> SellList { get; set; } = null;
 
         internal static string ProfilePath { get; } = Path.Combine(Engine.ExePath, "Data", "Profiles");
         internal static string DataPath { get; } = Path.Combine(Engine.ExePath, "Data");

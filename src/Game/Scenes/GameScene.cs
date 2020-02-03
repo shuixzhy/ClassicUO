@@ -60,7 +60,6 @@ namespace ClassicUO.Game.Scenes
         private RenderTarget2D _renderTarget, _darkness;
         private int _scale = 5; // 1.0
 
-
         private long _timePing;
         private UseItemQueue _useItemQueue = new UseItemQueue();
         private Vector4 _vectorClear = new Vector4(Vector3.Zero, 1);
@@ -165,7 +164,7 @@ namespace ClassicUO.Game.Scenes
 
             Engine.Profile.Current.RestoreScaleValue = Engine.Profile.Current.ScaleZoom = Scale;
             Engine.UI.ContainerScale = Engine.Profile.Current.ContainersScale / 100f;
-
+            World.Player.LootThread();
             Plugin.OnConnected();
         }
 
@@ -550,7 +549,8 @@ namespace ClassicUO.Game.Scenes
                 NetClient.Socket.Statistics.SendPing();
                 _timePing = (long) totalMS + 1000;
             }
-
+            //World.Player.TryOpenCorpses();
+            //World.Player.AutoLoot();
             Macros.Update();
             _useItemQueue.Update(totalMS, frameMS);
 
@@ -624,7 +624,7 @@ namespace ClassicUO.Game.Scenes
             FillGameObjectList();
         }
 
-
+        
 
         public override bool Draw(UltimaBatcher2D batcher)
         {

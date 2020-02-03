@@ -22,7 +22,7 @@
 #endregion
 
 using System;
-
+using System.Collections.Generic;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
 using ClassicUO.Game.Scenes;
@@ -222,6 +222,7 @@ namespace ClassicUO.Game.UI.Controls
                         case CursorTarget.Object:
                         case CursorTarget.Grab:
                         case CursorTarget.SetGrabBag:
+                        
                             SelectedObject.Object = item;
 
 
@@ -254,7 +255,72 @@ namespace ClassicUO.Game.UI.Controls
                             }
 
                             break;
+                        case CursorTarget.AddToLootlist:
+                            SelectedObject.Object = item;
+                            if (item != null)
+                            {
+                                TargetManager.TargetGameObject(item);
+                                Mouse.LastLeftButtonClickTime = 0;
+                                ushort[] obj = new ushort[2];
+                                obj[0] = item.Graphic.Value;
+                                obj[1] = item.Hue;
 
+                                if (Engine.Profile.Current.LootList == null)
+                                {
+                                    Engine.Profile.Current.LootList = new List<ushort[]>();
+                                }
+                                bool contain = false;
+                                foreach (ushort[] i in Engine.Profile.Current.LootList)
+                                {
+                                    if (obj[0] == i[0] && obj[1] == i[1])
+                                    {
+                                        contain = true;
+                                        break;
+                                    }
+
+                                }
+                                if (!contain)
+                                {
+                                    Engine.Profile.Current.LootList.Add(obj);
+                                    Engine.UI.GetGump<LootListGump>()?.Dispose();
+                                    Engine.UI.Add(new LootListGump());
+                                }
+
+                            }
+                            break;
+                        case CursorTarget.AddToSelllist:
+                            SelectedObject.Object = item;
+                            if (item != null)
+                            {
+                                TargetManager.TargetGameObject(item);
+                                Mouse.LastLeftButtonClickTime = 0;
+                                ushort[] obj = new ushort[2];
+                                obj[0] = item.Graphic.Value;
+                                obj[1] = item.Hue;
+
+                                if (Engine.Profile.Current.SellList == null)
+                                {
+                                    Engine.Profile.Current.SellList = new List<ushort[]>();
+                                }
+                                bool contain = false;
+                                foreach (ushort[] i in Engine.Profile.Current.SellList)
+                                {
+                                    if (obj[0] == i[0] && obj[1] == i[1])
+                                    {
+                                        contain = true;
+                                        break;
+                                    }
+
+                                }
+                                if (!contain)
+                                {
+                                    Engine.Profile.Current.SellList.Add(obj);
+                                    Engine.UI.GetGump<SellListGump>()?.Dispose();
+                                    Engine.UI.Add(new SellListGump());
+                                }
+
+                            }
+                            break;
                     }
                 }
                 else

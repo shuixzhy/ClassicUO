@@ -37,22 +37,22 @@ namespace ClassicUO.Game.Data
             {
                 // Spell List
                 {
-                    1, new SpellDefinition("Inspire", 701, 0x945, 0x945, "Uus Por", 30, 90, 8, TargetType.Beneficial, Reagents.None)
+                    1, new SpellDefinition(Language.Language.UI_SpellName_Inspire, 701, 0x945, 0x945, "Uus Por", 30, 90, 8, TargetType.Beneficial, Reagents.None)
                 },
                 {
-                    2, new SpellDefinition("Invigorate", 702, 0x946, 0x946, "An Zu", 30, 90, 8, TargetType.Beneficial, Reagents.None)
+                    2, new SpellDefinition(Language.Language.UI_SpellName_Invigorate, 702, 0x946, 0x946, "An Zu", 30, 90, 8, TargetType.Beneficial, Reagents.None)
                 },
                 {
-                    3, new SpellDefinition("Resilience", 703, 0x947, 0x947, "Kal Mani Tym", 30, 90, 8, TargetType.Beneficial, Reagents.None)
+                    3, new SpellDefinition(Language.Language.UI_SpellName_Resilience, 703, 0x947, 0x947, "Kal Mani Tym", 30, 90, 8, TargetType.Beneficial, Reagents.None)
                 },
                 {
-                    4, new SpellDefinition("Perseverance", 704, 0x948, 0x948, "Uus Jux Sanct", 30, 90, 8, TargetType.Beneficial, Reagents.None)
+                    4, new SpellDefinition(Language.Language.UI_SpellName_Perseverance, 704, 0x948, 0x948, "Uus Jux Sanct", 30, 90, 8, TargetType.Beneficial, Reagents.None)
                 },
                 {
-                    5, new SpellDefinition("Tribulation", 705, 0x949, 0x949, "In Jux Hur Rel", 30, 90, 16, TargetType.Harmful, Reagents.None)
+                    5, new SpellDefinition(Language.Language.UI_SpellName_Tribulation, 705, 0x949, 0x949, "In Jux Hur Rel", 30, 90, 16, TargetType.Harmful, Reagents.None)
                 },
                 {
-                    6, new SpellDefinition("Despair", 706, 0x94A, 0x94A, "Kal Des Mani Tym", 30, 90, 18, TargetType.Harmful, Reagents.None)
+                    6, new SpellDefinition(Language.Language.UI_SpellName_Despair, 706, 0x94A, 0x94A, "Kal Des Mani Tym", 30, 90, 18, TargetType.Harmful, Reagents.None)
                 }
             };
         }

@@ -54,21 +54,22 @@ namespace ClassicUO.Game.UI.Gumps
         private int _mapIndex;
         private bool _showPartyMembers;
 
-        public WorldMapGump() : base(400, 400, 100, 100, 0, 0)
+        public WorldMapGump() : base(200, 200, 100, 100, 0, 0)
         {
             CanMove = true;
+            CanBeSaved = true;
             AcceptMouseInput = true;
             CanCloseWithRightClick = false;
 
-            GameActions.Print("WorldMap loading...", 0x35);
+            GameActions.Print(Language.Language.UI_WorldMap_Load, 0x35);
             Load();
             OnResize();
 
 
             ContextMenuControl contextMenu = new ContextMenuControl();
-            contextMenu.Add("Flip map", () => _flipMap = !_flipMap, true, _flipMap);
-            contextMenu.Add("Top Most", () => TopMost = !TopMost, true, _isTopMost);
-            contextMenu.Add("Free view", () =>
+            contextMenu.Add(Language.Language.UI_WorldMap_Flip, () => _flipMap = !_flipMap, true, _flipMap);
+            contextMenu.Add(Language.Language.UI_WorldMap_TopMost, () => TopMost = !TopMost, true, _isTopMost);
+            contextMenu.Add(Language.Language.UI_WorldMap_FreeView, () =>
             {
                 _freeView = !_freeView;
 
@@ -78,15 +79,35 @@ namespace ClassicUO.Game.UI.Gumps
                     CanMove = true;
                 }
             }, true, _freeView);
-            contextMenu.Add("Show party members", () => { _showPartyMembers = !_showPartyMembers; }, true, _showPartyMembers);
+            contextMenu.Add(Language.Language.UI_WorldMap_ShowPartyMembers, () => { _showPartyMembers = !_showPartyMembers; }, true, _showPartyMembers);
             contextMenu.Add("", null);
-            contextMenu.Add("Close", Dispose);
+            contextMenu.Add(Language.Language.UI_WorldMap_Close, Dispose);
 
 
             Add(contextMenu);
         }
 
+        public override void Save(BinaryWriter writer)
+        {
+            base.Save(writer);
 
+            writer.Write(Width);
+            writer.Write(Height);
+            writer.Write(_isTopMost);
+        }
+        public override void Restore(BinaryReader reader)
+        {
+            base.Restore(reader);
+            int _width = reader.ReadInt32();
+            int _height = reader.ReadInt32();
+            TopMost = reader.ReadBoolean();
+            _ = ResizeWindow(new Point
+            {
+                X = _width,
+                Y = _height
+            });
+            Load();
+        }
         public float Zoom => _zooms[_zoomIndex];
 
 
@@ -193,6 +214,10 @@ namespace ClassicUO.Game.UI.Gumps
 
         private unsafe Task Load()
         {
+            if (Width < 100)
+                Width = 100;
+            if (Height < 100)
+                Height = 100;
             _mapIndex = World.MapIndex;
             _mapTexture?.Dispose();
             _mapTexture = null;
@@ -342,7 +367,7 @@ namespace ClassicUO.Game.UI.Gumps
                 _mapTexture = new UOTexture32(realWidth, realHeight);
                 _mapTexture.SetData(buffer);
 
-                GameActions.Print("WorldMap loaded!", 0x48);
+                GameActions.Print(Language.Language.UI_WorldMap_Loaded, 0x48);
             });
         }
 

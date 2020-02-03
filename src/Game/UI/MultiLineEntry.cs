@@ -34,6 +34,7 @@ namespace ClassicUO.Game.UI
         {
             RenderText = RenderedText.Create(string.Empty, hue, font, unicode, style, maxWidth: width);
             RenderCaret = RenderedText.Create("_", hue, font, unicode, (style & FontStyle.BlackBorder) != 0 ? FontStyle.BlackBorder : FontStyle.None, maxWidth: width);
+
             MaxLines = 0;
         }
 

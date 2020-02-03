@@ -400,5 +400,6 @@ namespace ClassicUO.Game
             }
             DropItem(item.Serial, Position.INVALID, bag);
         }
+        
     }
 }

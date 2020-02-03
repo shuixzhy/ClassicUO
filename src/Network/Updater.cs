@@ -39,10 +39,10 @@ namespace ClassicUO.Network
 {
     internal class Updater
     {
-        private const string REPO_USER = "shuixzhy";
-        private const string REPO_NAME = "ClassicUO-";
-        private const string API_RELEASES_LINK = "https://api.github.com/repos/{0}/{1}/releases";
-
+        private const string REPO_USER = "shuix";
+        private const string REPO_NAME = "ClassicUO";
+        private const string API_RELEASES_LINK = "https://gitee.com/{0}/{1}/releases";
+       
         private readonly WebClient _client;
         private int _animIndex;
         private int _countDownload;
@@ -84,7 +84,7 @@ namespace ClassicUO.Network
                 const int BLOCK_COUNT = 20;
                 const string ANIMATION = @"|/-\";
 
-                int progressBlockCount = (int) (_progress * BLOCK_COUNT);
+                int progressBlockCount = (int)(_progress * BLOCK_COUNT);
 
                 string text = $"{new string('#', progressBlockCount)}{new string('-', BLOCK_COUNT - progressBlockCount)} - {e.ProgressPercentage}% {ANIMATION[_animIndex++ % ANIMATION.Length]}";
 
@@ -126,7 +126,49 @@ namespace ClassicUO.Network
 
             return false;
         }
+        public bool HaveNewVersion()
+        {
+            //if (IsDownloading)
+            //    return false;
 
+            //Interlocked.Increment(ref _countDownload);
+
+            //Log.Message(LogTypes.Trace, "Checking update...");
+
+            //Reset();
+
+            //string json = _client.DownloadString(string.Format(API_RELEASES_LINK, REPO_USER, REPO_NAME));
+
+            //JArray data = JsonConvert.DeserializeObject<JArray>(json);
+
+
+            //foreach (JToken releaseToken in data.Children())
+            //{
+            //    string tagName = releaseToken["tag_name"].ToString();
+
+            //    Log.Message(LogTypes.Trace, "Fetching: " + tagName);
+
+            //    if (Version.TryParse(tagName, out Version version) && version >= Engine.Version)
+            //    {
+            //        return false;
+            //    }
+            //}
+
+            string json = string.Format(API_RELEASES_LINK, REPO_USER, REPO_NAME);
+            if (!string.IsNullOrEmpty(json))
+            {
+                try
+                {
+                    Process.Start(json);
+                }
+                catch (Exception)
+                {
+                    Log.Message(LogTypes.Warning, "Failed to open url: " + json);
+                }
+            }
+            return true;
+
+        }
         private bool Download()
         {
             if (IsDownloading)
@@ -145,7 +187,7 @@ namespace ClassicUO.Network
 #if DEV_BUILD
             FileInfo fileLastCommit = new FileInfo(Path.Combine(Engine.ExePath, "version.txt"));
 #endif
-            
+
 
             foreach (JToken releaseToken in data.Children())
             {
@@ -194,17 +236,17 @@ namespace ClassicUO.Network
                     string assetName = asset["name"].ToString();
                     string downloadUrl = asset["browser_download_url"].ToString();
 
-                    string temp;
+                    string temp = Engine.ExePath;
 
-                    try
-                    {
-                        temp = Path.GetTempPath();
-                    }
-                    catch
-                    {
-                        Log.Message(LogTypes.Warning, "Impossible to retrive OS temp path. CUO will use current path");
-                        temp = Engine.ExePath;
-                    }
+                    //try
+                    //{
+                    //    temp = Path.GetTempPath();
+                    //}
+                    //catch
+                    //{
+                    //    Log.Message(LogTypes.Warning, "Impossible to retrive OS temp path. CUO will use current path");
+                    //    temp = Engine.ExePath;
+                    //}
 
                     string tempPath = Path.Combine(temp, "update-temp");
                     string zipFile = Path.Combine(tempPath, assetName);
@@ -259,5 +301,7 @@ namespace ClassicUO.Network
             _currentText = string.Empty;
             _animIndex = 0;
         }
+
+
     }
 }

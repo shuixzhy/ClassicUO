@@ -609,7 +609,14 @@ namespace ClassicUO.Game.Managers
                     GameActions.UseSkill(GameActions.LastSkillIndex);
 
                     break;
-
+                case MacroType.CastBardic:
+                case MacroType.CastBushido:
+                case MacroType.CastChivalry:
+                case MacroType.CastMagery:
+                case MacroType.CastMysticism:
+                case MacroType.CastNecromancy:
+                case MacroType.CastNinjitsu:
+                case MacroType.CastSpellweaving:
                 case MacroType.CastSpell:
                     int spell = macro.SubCode - MacroSubType.Clumsy + 1;
 
@@ -622,7 +629,7 @@ namespace ClassicUO.Game.Managers
                         {
                             //totalCount = _spellsCountTable[spellType];
 
-                            if (spell < _spellsCountTable[spellType])
+                            if (spell <= _spellsCountTable[spellType])
                                 break;
                             spell -= _spellsCountTable[spellType];
                         }
@@ -706,7 +713,38 @@ namespace ClassicUO.Game.Managers
                         result = 1;
 
                     break;
+                case MacroType.LastHarmfulTarget:
 
+
+
+                    if (TargetManager.IsTargeting)
+                    {
+                        TargetManager.TargetGameObject(World.Get(TargetManager.LastHarmfulTarget));
+
+                        WaitForTargetTimer = 0;
+                    }
+                    else if (WaitForTargetTimer < Engine.Ticks)
+                        WaitForTargetTimer = 0;
+                    else
+                        result = 1;
+
+                    break;
+                case MacroType.LastBeneficialTarget:
+
+
+
+                    if (TargetManager.IsTargeting)
+                    {
+                        TargetManager.TargetGameObject(World.Get(TargetManager.LastBeneficialTarget));
+
+                        WaitForTargetTimer = 0;
+                    }
+                    else if (WaitForTargetTimer < Engine.Ticks)
+                        WaitForTargetTimer = 0;
+                    else
+                        result = 1;
+
+                    break;
                 case MacroType.TargetSelf:
 
                     //if (WaitForTargetTimer == 0)
@@ -1115,13 +1153,13 @@ namespace ClassicUO.Game.Managers
                     break;
 
                 case MacroType.Grab:
-                    GameActions.Print("Target an Item to grab it.");
+                    GameActions.Print(Language.Language.UI_GrabItem);
                     TargetManager.SetTargeting(CursorTarget.Grab, Serial.INVALID, TargetType.Neutral);
 
                     break;
 
                 case MacroType.SetGrabBag:
-                    GameActions.Print("Target the container to Grab items into.");
+                    GameActions.Print(Language.Language.UI_GridLoot_ChooseContainer);
                     TargetManager.SetTargeting(CursorTarget.SetGrabBag, Serial.INVALID, TargetType.Neutral);
 
                     break;
@@ -1153,6 +1191,19 @@ namespace ClassicUO.Game.Managers
                             healthbar.Dispose();
                         }
                     }
+                    break;
+                case MacroType.Loot:
+                    foreach (var c in World.Items.Where(t => t.Graphic == 0x2006 && t.Distance <= Engine.Profile.Current.AutoOpenCorpseRange))
+                    {
+                        if (!PlayerMobile.OpenedCorpses.Contains(c.Serial))
+                        {
+                            PlayerMobile.OpenedCorpses.Add(c.Serial);
+                        }
+
+                        GameActions.DoubleClickQueued(c.Serial);
+                    }
+                    PlayerMobile.LootedCorpses.Clear();
+                    //World.Player.AutoLoot();
                     break;
             }
 
@@ -1309,6 +1360,39 @@ namespace ClassicUO.Game.Managers
                     offset = (int) MacroSubType.ConfusionBlastPotion;
                     count = MacroSubType.ExplosionPotion - MacroSubType.ConfusionBlastPotion;
                     break;
+                case MacroType.CastMagery:
+                    offset = (int)MacroSubType.Clumsy;
+                    count = MacroSubType.AnimateDead - MacroSubType.Clumsy;
+                    break;
+                case MacroType.CastNecromancy:
+                    offset = (int)MacroSubType.AnimateDead;
+                    count = MacroSubType.CleanceByFire - MacroSubType.AnimateDead;
+                    break;
+                case MacroType.CastChivalry:
+                    offset = (int)MacroSubType.CleanceByFire;
+                    count = MacroSubType.HonorableExecution - MacroSubType.CleanceByFire;
+                    break;
+                case MacroType.CastBushido:
+                    offset = (int)MacroSubType.HonorableExecution;
+                    count = MacroSubType.FocusAttack - MacroSubType.HonorableExecution;
+                    break;
+                case MacroType.CastNinjitsu:
+                    offset = (int)MacroSubType.FocusAttack;
+                    count = MacroSubType.ArcaneCircle - MacroSubType.FocusAttack;
+                    break;
+                case MacroType.CastSpellweaving:
+                    offset = (int)MacroSubType.ArcaneCircle;
+                    count = MacroSubType.NetherBolt - MacroSubType.ArcaneCircle;
+                    break;
+                case MacroType.CastMysticism:
+                    offset = (int)MacroSubType.NetherBolt;
+                    count = MacroSubType.Inspire - MacroSubType.NetherBolt;
+                    break;
+                case MacroType.CastBardic:
+                    offset = (int)MacroSubType.Inspire;
+                    count = MacroSubType.Hostile - MacroSubType.Inspire;
+                    break;
+                
             }
         }
     }
@@ -1333,6 +1417,14 @@ namespace ClassicUO.Game.Managers
                 case MacroType.ArmDisarm:
                 case MacroType.InvokeVirtue:
                 case MacroType.CastSpell:
+                case MacroType.CastBardic:
+                case MacroType.CastBushido:
+                case MacroType.CastChivalry:
+                case MacroType.CastMagery:
+                case MacroType.CastMysticism:
+                case MacroType.CastNecromancy:
+                case MacroType.CastNinjitsu:
+                case MacroType.CastSpellweaving:
                 case MacroType.SelectNext:
                 case MacroType.SelectPrevious:
                 case MacroType.SelectNearest:
@@ -1472,7 +1564,17 @@ namespace ClassicUO.Game.Managers
         UseItemInHand,
         UsePotion,
         CloseAllHealthBars,
-
+        LastHarmfulTarget,
+        LastBeneficialTarget,
+        CastMagery,
+        CastNecromancy,
+        CastChivalry,
+        CastNinjitsu,
+        CastBushido,
+        CastSpellweaving,
+        CastMysticism,
+        CastBardic,
+        Loot
     }
 
     internal enum MacroSubType
@@ -1621,7 +1723,7 @@ namespace ClassicUO.Game.Managers
         Wither,
         WraithForm,
         Exorcism,//117
-        CleanceByFire,
+        CleanceByFire,//201
         CloseWounds,
         ConsecrateWeapon,
         DispelEvil,
@@ -1631,7 +1733,7 @@ namespace ClassicUO.Game.Managers
         NobleSacrifice,
         RemoveCurse,
         SacredJourney,
-        HonorableExecution,
+        HonorableExecution,//Bushido
         Confidence,
         Evasion,
         CounterAttack,
@@ -1645,7 +1747,7 @@ namespace ClassicUO.Game.Managers
         Backstab,
         Shadowjump,
         MirrorImage,
-        ArcaneCircle,
+        ArcaneCircle,//Spellweaving
         GiftOfRenewal,
         ImmolatingWeapon,
         Attunement,
@@ -1661,7 +1763,7 @@ namespace ClassicUO.Game.Managers
         WordOfDeath,
         GiftOfLife,
         ArcaneEmpowermen,
-        NetherBolt,
+        NetherBolt,//Mysticism
         HealingStone,
         PurgeMagic,
         Enchant,
@@ -1677,7 +1779,7 @@ namespace ClassicUO.Game.Managers
         HailStorm,
         NetherCyclone,
         RisingColossus,
-        Inspire,
+        Inspire,//Bardic
         Invigorate,
         Resilience,
         Perseverance,

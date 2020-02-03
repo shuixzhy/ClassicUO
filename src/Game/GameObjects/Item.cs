@@ -44,7 +44,6 @@ namespace ClassicUO.Game.GameObjects
         private Graphic? _displayedGraphic;
         private bool _isMulti;
 
-
         private StaticTiles? _itemData;
 
         private ulong _spellsBitFiled;

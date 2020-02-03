@@ -26,7 +26,7 @@ using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.UI.Controls;
 using ClassicUO.Input;
 using ClassicUO.Utility.Logging;
-
+using ClassicUO.Language;
 using Microsoft.Xna.Framework;
 
 namespace ClassicUO.Game.UI.Gumps
@@ -38,11 +38,12 @@ namespace ClassicUO.Game.UI.Gumps
             CanMove = true;
             AcceptMouseInput = true;
             CanCloseWithRightClick = false;
-
+            int step = 108;
+            int x = 30;
             // maximized view
             Add(new ResizePic(9200)
             {
-                X = 0, Y = 0, Width = 579, Height = 27
+                X = 0, Y = 0, Width = 30+step *8, Height = 27
             }, 1);
 
             Add(new Button(0, 5540, 5542, 5541)
@@ -50,45 +51,49 @@ namespace ClassicUO.Game.UI.Gumps
                 ButtonAction = ButtonAction.SwitchPage, ToPage = 2, X = 5, Y = 3
             }, 1);
 
-            Add(new Button((int) Buttons.Map, 2443, 2443, 0, "地圖", 1, true, 0, 0x36)
+            Add(new Button((int) Buttons.Map, 2445, 2445, 0, Language.Language.UI_TopBar_Map, 1, true, 0, 0x36)
             {
-                ButtonAction = ButtonAction.Activate, X = 30, Y = 3, FontCenter = true
+                ButtonAction = ButtonAction.Activate, X = x, Y = 3, FontCenter = true
             }, 1);
-
-            Add(new Button((int) Buttons.Paperdoll, 2443, 2443, 0, "紙娃娃", 1, true, 0, 0x36)
+            x += step;
+            Add(new Button((int) Buttons.Paperdoll, 2445, 2445, 0, Language.Language.UI_TopBar_Paperdoll, 1, true, 0, 0x36)
             {
-                ButtonAction = ButtonAction.Activate, X = 93, Y = 3, FontCenter = true
+                ButtonAction = ButtonAction.Activate, X = x, Y = 3, FontCenter = true
             }, 1);
-
-            Add(new Button((int) Buttons.Inventory, 2443, 2443, 0, "背包", 1, true, 0, 0x36)
+            x += step;
+            Add(new Button((int) Buttons.Inventory, 2445, 2445, 0, Language.Language.UI_TopBar_Inventory, 1, true, 0, 0x36)
             {
-                ButtonAction = ButtonAction.Activate, X = 156, Y = 3, FontCenter = true
+                ButtonAction = ButtonAction.Activate, X = x, Y = 3, FontCenter = true
             }, 1);
-
-            Add(new Button((int) Buttons.Journal, 2443, 2443, 0, "日誌", 1, true, 0, 0x36)
-            {
-                ButtonAction = ButtonAction.Activate, X = 219, Y = 3, FontCenter = true
-            }, 1);
-
-            Add(new Button((int) Buttons.Chat, 2443, 2443, 0, "聊天", 1, true, 0, 0x36)
-            {
-                ButtonAction = ButtonAction.Activate, X = 282, Y = 3, FontCenter = true
-            }, 1);
-
-            Add(new Button((int) Buttons.Help, 2443, 2443, 0, "幫助", 1, true, 0, 0x36)
-            {
-                ButtonAction = ButtonAction.Activate, X = 345, Y = 3, FontCenter = true
-            }, 1);
-
-            Add(new Button((int) Buttons.Debug, 2443, 2443, 0, "調試", 1, true, 0, 0x36)
-            {
-                ButtonAction = ButtonAction.Activate, X = 408, Y = 3, FontCenter = true
-            }, 1);
-
-            Add(new Button((int)Buttons.WorldMap, 2445, 2445, 0, "世界地圖", 1, true, 0, 0x36)
+            x += step;
+            Add(new Button((int) Buttons.Journal, 2445, 2445, 0, Language.Language.UI_TopBar_Journal, 1, true, 0, 0x36)
             {
                 ButtonAction = ButtonAction.Activate,
-                X = 471,
+                X = x, Y = 3, FontCenter = true
+            }, 1);
+            x += step;
+            Add(new Button((int) Buttons.Chat, 2445, 2445, 0, Language.Language.UI_TopBar_Chat, 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate,
+                X = x, Y = 3, FontCenter = true
+            }, 1);
+            x += step;
+            Add(new Button((int) Buttons.Help, 2445, 2445, 0, Language.Language.UI_TopBar_Help, 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate,
+                X = x, Y = 3, FontCenter = true
+            }, 1);
+            x += step;
+            Add(new Button((int) Buttons.Debug, 2445, 2445, 0, Language.Language.UI_TopBar_Debug, 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate,
+                X = x, Y = 3, FontCenter = true
+            }, 1);
+            x += step;
+            Add(new Button((int)Buttons.WorldMap, 2445, 2445, 0, Language.Language.UI_TopBar_WorldMap, 1, true, 0, 0x36)
+            {
+                ButtonAction = ButtonAction.Activate,
+                X = x,
                 Y = 3,
                 FontCenter = true
             }, 1);
@@ -121,7 +126,7 @@ namespace ClassicUO.Game.UI.Gumps
         public static void Create()
         {
             TopBarGump gump = Engine.UI.GetGump<TopBarGump>();
-
+            Language.Language.ChangeLanguage(Engine.Profile.Current.Language);
             if (gump == null)
             {
                 if (Engine.Profile.Current.TopbarGumpPosition.X < 0 || Engine.Profile.Current.TopbarGumpPosition.Y < 0)
@@ -142,6 +147,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         protected override void OnMouseUp(int x, int y, MouseButton button)
         {
+            Language.Language.ChangeLanguage(Engine.Profile.Current.Language);
             if (button == MouseButton.Right && (X != 0 || Y != 0))
             {
                 X = 0;

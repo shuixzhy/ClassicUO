@@ -61,6 +61,19 @@ namespace ClassicUO.Game.Managers
                 else
                     TargetManager.CancelTarget();
             });
+            Register("jiajiajia", s =>
+             {
+                 if (Engine.Profile.Current.RunFast)
+                 {
+                     Engine.Profile.Current.RunFast = false;
+                     GameActions.Print("Yu~~~!");
+                 }
+                 else
+                 {
+                     Engine.Profile.Current.RunFast = true;
+                     GameActions.Print("Jia jia jia!");
+                 }
+             });
         }
 
 

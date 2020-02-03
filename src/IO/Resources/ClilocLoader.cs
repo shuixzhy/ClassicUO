@@ -48,10 +48,9 @@ namespace ClassicUO.IO.Resources
         public override Task Load()
         {
             return Task.Run(() => {
-                if (string.IsNullOrEmpty(_cliloc))
-                    _cliloc = "Cliloc.enu";
+                
 
-                string path = Path.Combine(FileManager.UoFolderPath, _cliloc);
+                string path = Path.Combine(FileManager.UoFolderPath, "Cliloc.enu");
 
                 if (!File.Exists(path))
                     return;
@@ -74,6 +73,34 @@ namespace ClassicUO.IO.Resources
                         string text = string.Intern(Encoding.UTF8.GetString(buffer, 0, length));
 
                         _entries[number] = new StringEntry(number, text);
+                    }
+                }
+                if (!string.IsNullOrEmpty(_cliloc))
+                {
+                    path = Path.Combine(FileManager.UoFolderPath, _cliloc);
+
+                    if (!File.Exists(path))
+                        return;
+
+                    using (BinaryReader reader = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
+                    {
+                        reader.ReadInt32();
+                        reader.ReadInt16();
+                        byte[] buffer = new byte[1024];
+
+                        while (reader.BaseStream.Length != reader.BaseStream.Position)
+                        {
+                            int number = reader.ReadInt32();
+                            byte flag = reader.ReadByte();
+                            int length = reader.ReadInt16();
+
+                            if (length > buffer.Length)
+                                buffer = new byte[(length + 1023) & ~1023];
+                            reader.Read(buffer, 0, length);
+                            string text = string.Intern(Encoding.UTF8.GetString(buffer, 0, length));
+
+                            _entries[number] = new StringEntry(number, text);
+                        }
                     }
                 }
             });

@@ -1,103 +1,74 @@
-﻿<p align="center">
-  <img width="300" height="320" src="https://i.imgur.com/CgpwyIQ.png">
-</p>
 
-An open source implementation of the Ultima Online Classic Client.
+基于Github作者andreakarasho的CUO开源代码优化的 Ultima Online 游戏客户端。
 
+           
 
-#### Paypal  
-[![PayPal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/muskara)  
-#### Discord  
- <a href="https://discord.gg/VdyCpjQ">
-        <img src="https://img.shields.io/discord/458277173208547350.svg?logo=discord"
-            alt="chat on Discord"></a>     
-            
-#### Current release
+# 介绍
+ClassicUO是Ultima Online 客户端的开源实现。此客户端旨在模拟所有标准客户端版本，主要针对Ultima Online 免费服务器。目前不支持官方服务器。
 
-[![Build status](https://ci.appveyor.com/api/projects/status/qvqctcf8oss5bqh8?svg=true)](https://ci.appveyor.com/project/andreakarasho/classicuo)
+客户端目前还有大量开发工作，不过基本功能正常. 代码基于 [FNA-XNA](https://fna-xna.github.io/) 框架. 选择C#是因为目前大量服务器版本都是基于C#开发的, FNA-XNA目前看来比较适合此类游戏.
 
-
-# Introduction
-ClassicUO is an open source implementation of the Ultima Online Classic Client. This client is intended to emulate all standard client versions and is primarily tested against Ultima Online free shards. This client will not work on the official game shards at the moment.
-
-The client is currently under heavy development but is functional. The code is based on the [FNA-XNA](https://fna-xna.github.io/) framework. C# is chosen because there is a large community of developers working on Ultima Online server emulators in C#, because FNA-XNA exists and seems reasonably suitable for creating this type of game.
-
-ClassicUO is natively cross platform and supports:
+ClassicUO 跨平台支持:
 * Windows
 * Linux
 * MacOS
 
-# Building (Windows)
-The binary produced will work on all supported platforms.
+# 运行
+随后将推出使用方法的介绍。目前可参看[Wiki](https://github.com/andreakarasho/ClassicUO/wiki)。
 
-You'll need [Visual Studio 2019](https://www.visualstudio.com/downloads/). The free community edition should be fine. Once that
-is installed:
+# 生成 (Windows)
+生成的二进制文件将在所有支持的平台上工作。
 
-1. Open ClassicUO.sln in the root of the repository.
 
-2. Select "Debug" or "Release" at the top.
+安装 [Visual Studio 2019](https://www.visualstudio.com/downloads/). 免费版即可，随后:
 
-3. Hit F5 to build. The output will be in the "bin/Release" or "bin/Debug" directory.
+1. 打开 ClassicUO.sln.
 
-# Building (Linux)
-Open a terminal instance and put the following commands:
+2. 选择 "Debug" 或 "Release".
+
+3. 按 F5 生产. 输出的文件在 "bin/Release" 或 "bin/Debug" 目录.
+
+# 生成 (Linux)
+打开终端，输入以下命令:
 
 1. `sudo apt-get install mono-complete`
 
 2. `sudo apt-get install monodevelop`
 
-3. Select "Debug" or "Release" at the top.
+3. 选择 "Debug" 或 "Release".
 
-4. Hit F5 to build. The output will be in the "bin/Release" or "bin/Debug" directory.
+4. 按 F5 生产. 输出的文件在 "bin/Release" 或 "bin/Debug" 目.
 
-# Building (macOS)
-All the commands should be executed in terminal. All global package installs should be done only if not yet installed.
+# 生成 (macOS)
+打开终端，输入以下命令，依次安装支持包：
 
-1. Install Homebrew, a package manager for macOS (if not yet installed):
-Follow instructions on https://brew.sh/
+1.安装 Homebrew, macOS安装包管理器：
+参看 https://brew.sh/
 
-2. Install Mono (https://www.mono-project.com/):
+2. 安装 Mono,开源的跨平台 .NET 框架 (https://www.mono-project.com/):
 `brew install mono`
 
-3. Install Paket, a dependency manager for .NET and mono projects (https://fsprojects.github.io/Paket/):
-`brew install paket`
+3. 安装NuGet,一个 .NET 管理包(https://www.nuget.org/):
+`brew install nuget`
 
-4. Navigate to ClassicUO root folder:
+4. 到 ClassicUO 根目录:
 `cd /your/path/to/ClassicUO`
 
-5. Initialize Paket environment:
-`paket init`
+5. 恢复需要的支持包:
+`nuget restore`
 
-6. Install required/missing dependencies:
-`paket add Newtonsoft.Json --version 12.0.2`
-
-7. Build:
+7. 生成:
   - Debug version: `msbuild /t:Rebuild`
   - Release version: `msbuild /t:Rebuild /p:Configuration=Release`
 
-8. Start ClassicUO via Mono (to properly set up all required constants use provided bash script):
+8. 通过Mono运行 (把ClassicUO-mono.sh拖到终端窗口，回车即可):
   - Debug version: `./bin/Debug/ClassicUO-mono.sh`
   - Release version: `./bin/Release/ClassicUO-mono.sh`
 
-Other useful commands:
-- `msbuild /t:Clean`
-- `msbuild /t:Clean /p:Configuration=Release`
-- `msbuild /t:RestorePackages`
+X.其实以上步骤如果出问题走不通，直接安装VS for MAC，然后到Mono网站安装Mono for VS就行。
 
-# Running
-Follow the [Wiki](https://github.com/andreakarasho/ClassicUO/wiki) to setup correctly ClassicUO
 
-# Contribute
-Everyone is welcome to contribute! The GitHub issues and project tracker are kept up to date with tasks that need work.
+# 法律与版权
+本代码基于[ClassicUO](https://github.com/andreakarasho/ClassicUO)优化。
 
-# Legal
-The code itself has been written using the following projects as a reference:
 
-* [OrionUO](https://github.com/hotride/orionuo)
-* [Razor](https://github.com/msturgill/razor)
-* [UltimaXNA](https://github.com/ZaneDubya/UltimaXNA)
-* [ServUO](https://github.com/servuo/servuo)
-
-This work is released under the GPLv3 license. This project does not distribute any copyrighted game assets. In order to run this client you'll need to legally obtain a copy of version 7.0.59.8 or earlier of the Ultima Online Classic Client.
-
-Ultima Online(R) © 2019 Electronic Arts Inc. All Rights Reserved.

@@ -36,6 +36,7 @@ using ClassicUO.Renderer;
 using ClassicUO.Network;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ClassicUO.Language;
 
 namespace ClassicUO.Game.UI.Gumps
 {
@@ -49,7 +50,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         private static UOTexture _logoTexture2D;
         private ScrollAreaItem _activeChatArea;
-        
+        private Combobox _languageBox;
         private Checkbox _castSpellsByOneClick, _queryBeforAttackCheckbox, _spellColoringCheckbox, _spellFormatCheckbox;
         private HSliderBar _cellSize;
 
@@ -129,12 +130,11 @@ namespace ClassicUO.Game.UI.Gumps
         private HSliderBar _containersScale;
         private Checkbox _containerScaleItems;
         // autopilot
-        private Checkbox _autoHealSelf, _autoOpenDoors, _autoOpenCorpse, _smoothDoors,_autoLootGold;
+        private Checkbox _autoHealSelf, _autoOpenDoors, _autoOpenCorpse, _smoothDoors,_autoLootGold, _autoLootItem, _autoSellItem;
         private Combobox _autoOpenCorpseOptions, _gridLoot;
         private TextBox _autoOpenCorpseRange;
-        private HSliderBar _corpseScale, _itemScale;
-
-
+        private HSliderBar _corpseScale, _itemScale, _autoLootDelay;
+        
 
         public OptionsGump() : base(0, 0)
         {
@@ -159,21 +159,21 @@ namespace ClassicUO.Game.UI.Gumps
             };
 
             Add(tc);
-
-            Add(new NiceButton(10, 10, 140, 25, ButtonAction.SwitchPage, "常規") { IsSelected = true, ButtonParameter = 1 });
-            Add(new NiceButton(10, 10 + 30 * 1, 140, 25, ButtonAction.SwitchPage, "音效") {ButtonParameter = 2});
-            Add(new NiceButton(10, 10 + 30 * 2, 140, 25, ButtonAction.SwitchPage, "圖像") {ButtonParameter = 3});
-            Add(new NiceButton(10, 10 + 30 * 3, 140, 25, ButtonAction.SwitchPage, "快捷键") {ButtonParameter = 4});
+            Language.Language.ChangeLanguage(Engine.Profile.Current.Language);
+            Add(new NiceButton(10, 10, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_General) { IsSelected = true, ButtonParameter = 1 });
+            Add(new NiceButton(10, 10 + 30 * 1, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Sounds) {ButtonParameter = 2});
+            Add(new NiceButton(10, 10 + 30 * 2, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Video) {ButtonParameter = 3});
+            Add(new NiceButton(10, 10 + 30 * 3, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Macro) {ButtonParameter = 4});
             //Add(new NiceButton(10, 10 + 30 * 4, 140, 25, ButtonAction.SwitchPage, "Tooltip") {ButtonParameter = 5});
-            Add(new NiceButton(10, 10 + 30 * 4, 140, 25, ButtonAction.SwitchPage, "字體") {ButtonParameter = 6});
-            Add(new NiceButton(10, 10 + 30 * 5, 140, 25, ButtonAction.SwitchPage, "對話") {ButtonParameter = 7});
-            Add(new NiceButton(10, 10 + 30 * 6, 140, 25, ButtonAction.SwitchPage, "戰鬥 / 施法") {ButtonParameter = 8});
-            Add(new NiceButton(10, 10 + 30 * 7, 140, 25, ButtonAction.SwitchPage, "快捷物品欄") {ButtonParameter = 9});
-            Add(new NiceButton(10, 10 + 30 * 8, 140, 25, ButtonAction.SwitchPage, "進階") {ButtonParameter = 10});
-            Add(new NiceButton(10, 10 + 30 * 9, 140, 25, ButtonAction.SwitchPage, "網絡") {ButtonParameter = 11});
-            Add(new NiceButton(10, 10 + 30 * 10, 140, 25, ButtonAction.SwitchPage, "信息條") { ButtonParameter = 12 });
-            Add(new NiceButton(10, 10 + 30 * 11, 140, 25, ButtonAction.SwitchPage, "容器") { ButtonParameter = 13 });
-            Add(new NiceButton(10, 10 + 30 * 12, 140, 25, ButtonAction.SwitchPage, "自動化") { ButtonParameter = 14 });
+            Add(new NiceButton(10, 10 + 30 * 4, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Fonts) {ButtonParameter = 6});
+            Add(new NiceButton(10, 10 + 30 * 5, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Speech) {ButtonParameter = 7});
+            Add(new NiceButton(10, 10 + 30 * 6, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_CombatSpells) {ButtonParameter = 8});
+            Add(new NiceButton(10, 10 + 30 * 7, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Counters) {ButtonParameter = 9});
+            Add(new NiceButton(10, 10 + 30 * 8, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Experimental) {ButtonParameter = 10});
+            Add(new NiceButton(10, 10 + 30 * 9, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Network) {ButtonParameter = 11});
+            Add(new NiceButton(10, 10 + 30 * 10, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_InfoBar) { ButtonParameter = 12 });
+            Add(new NiceButton(10, 10 + 30 * 11, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Container) { ButtonParameter = 13 });
+            Add(new NiceButton(10, 10 + 30 * 12, 140, 25, ButtonAction.SwitchPage, Language.Language.UI_Options_MainBtn_Autopilot) { ButtonParameter = 14 });
 
             Add(new Line(160, 5, 1, HEIGHT - 10, Color.Gray.PackedValue));
 
@@ -181,7 +181,7 @@ namespace ClassicUO.Game.UI.Gumps
             int offsetY = 60;
             Add(new Line(160, 405 + 35 + 1, WIDTH - 160, 1, Color.Gray.PackedValue));
 
-            Add(new Button((int)Buttons.Update, 2445, 2445, 0, caption: "更新客戶端", 1, true, 0, 0x36)
+            Add(new Button((int)Buttons.Update, 2445, 2445, 0, caption: Language.Language.UI_Updata, 1, true, 0, 0x36)
             {
                 X = 10 + offsetX,
                 Y = 405 + offsetY,
@@ -191,24 +191,24 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add(new Line(160, 405 + 35 + 1, WIDTH - 160, 1, Color.Gray.PackedValue));
 
-            Add(new Button((int) Buttons.Cancel, 2443, 2443, 0, caption:"取消",1, true, 0, 0x36)
+            Add(new Button((int) Buttons.Cancel, 2443, 2443, 0, caption: Language.Language.UI_Cancel, 1, true, 0, 0x36)
             {
                 X = 154 + offsetX, Y = 405 + offsetY, ButtonAction = ButtonAction.Activate,FontCenter = true
             });
 
-            Add(new Button((int) Buttons.Apply, 2443, 2443, 0, caption: "應用", 1, true, 0, 0x36)
+            Add(new Button((int) Buttons.Apply, 2443, 2443, 0, caption: Language.Language.UI_Apply, 1, true, 0, 0x36)
             {
                 X = 248 + offsetX, Y = 405 + offsetY, ButtonAction = ButtonAction.Activate,
                 FontCenter = true
             });
 
-            Add(new Button((int) Buttons.Default, 2443, 2443, 0, caption: "缺省", 1, true, 0, 0x36)
+            Add(new Button((int) Buttons.Default, 2443, 2443, 0, caption: Language.Language.UI_Default, 1, true, 0, 0x36)
             {
                 X = 346 + offsetX, Y = 405 + offsetY, ButtonAction = ButtonAction.Activate,
                 FontCenter = true
             });
 
-            Add(new Button((int) Buttons.Ok, 2443, 2443, 0, caption: "確定", 1, true, 0, 0x36)
+            Add(new Button((int) Buttons.Ok, 2443, 2443, 0, caption: Language.Language.UI_OK, 1, true, 0, 0x36)
             {
                 X = 443 + offsetX, Y = 405 + offsetY, ButtonAction = ButtonAction.Activate,
                 FontCenter = true
@@ -257,48 +257,61 @@ namespace ClassicUO.Game.UI.Gumps
             const int PAGE = 1;
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
+            Label text = new Label(Language.Language.UI_Options_General_Language,true,HUE_FONT);
+            rightArea.Add(text);
+            int chouse = (int)Engine.Profile.Current.Language;
+
+            if (chouse < 0 || chouse > 2)
+                chouse = 0;
+
+            _languageBox = new Combobox( text.X + 10, text.Y, 150, new[]
+            {
+                "English", "简体中文", "繁體中文"
+            }, chouse);
+            rightArea.Add(_languageBox);
+
             ScrollAreaItem fpsItem = new ScrollAreaItem();
-            Label text = new Label("- 刷新率:", true, HUE_FONT);
+            text = new Label(Language.Language.UI_Options_General_FPS, true, HUE_FONT);
             fpsItem.Add(text);
             _sliderFPS = new HSliderBar(text.X + 150, 5, 250, Constants.MIN_FPS, Constants.MAX_FPS, Engine.Profile.Current.MaxFPS, HSliderBarStyle.MetalWidgetRecessedBar, true, FONT, HUE_FONT);
             fpsItem.Add(_sliderFPS);
             rightArea.Add(fpsItem);
 
             fpsItem = new ScrollAreaItem();
-            text = new Label("- 登錄界面刷新率:", true, HUE_FONT);
+            text = new Label(Language.Language.UI_Options_General_FPSLogin, true, HUE_FONT);
             fpsItem.Add(text);
             _sliderFPSLogin = new HSliderBar(text.X + 150, 5, 250, Constants.MIN_FPS, Constants.MAX_FPS, Engine.GlobalSettings.MaxLoginFPS, HSliderBarStyle.MetalWidgetRecessedBar, true, FONT, HUE_FONT);
             fpsItem.Add(_sliderFPSLogin);
             rightArea.Add(fpsItem);
 
 
-            _reduceFPSWhenInactive = CreateCheckBox(rightArea, "減少後台刷新率", Engine.Profile.Current.ReduceFPSWhenInactive, 0, 5);
+            _reduceFPSWhenInactive = CreateCheckBox(rightArea, Language.Language.UI_Options_General_ReduceFPSWhenInactive, Engine.Profile.Current.ReduceFPSWhenInactive, 0, 5);
 
-            _highlightObjects = CreateCheckBox(rightArea, "高亮指針目標", Engine.Profile.Current.HighlightGameObjects, 0, 20);
-            _enablePathfind = CreateCheckBox(rightArea, "開啟尋路", Engine.Profile.Current.EnablePathfind, 0, 0);
-            _useShiftPathfind = CreateCheckBox(rightArea, "按SHIFT尋路", Engine.Profile.Current.UseShiftToPathfind, 0, 0);
-            _alwaysRun = CreateCheckBox(rightArea, "自動奔跑", Engine.Profile.Current.AlwaysRun, 0, 0);
-            _enableTopbar = CreateCheckBox(rightArea, "關閉菜單條", Engine.Profile.Current.TopbarGumpIsDisabled, 0, 0);
-            _holdDownKeyTab = CreateCheckBox(rightArea, "按住TAB鍵戰鬥", Engine.Profile.Current.HoldDownKeyTab, 0, 0);
-            _holdDownKeyAlt = CreateCheckBox(rightArea, "按住ALT鍵+右鍵點擊關閉停靠組件", Engine.Profile.Current.HoldDownKeyAltToCloseAnchored, 0, 0);
-            _holdShiftForContext = CreateCheckBox(rightArea, "按住Shift顯示文本菜單", Engine.Profile.Current.HoldShiftForContext, 0, 0);
-            _holdShiftToSplitStack = CreateCheckBox(rightArea, "按住Shift分割堆砌物品", Engine.Profile.Current.HoldShiftToSplitStack, 0, 0);
-            _highlightByState = CreateCheckBox(rightArea, "根據狀態高亮(中毒、麻痺、無敵)", Engine.Profile.Current.HighlightMobilesByFlags, 0, 0);
-            _poisonColorPickerBox = CreateClickableColorBox(rightArea, 20, 5, Engine.Profile.Current.PoisonHue, "中毒顏色", 40, 5);
-            _paralyzedColorPickerBox = CreateClickableColorBox(rightArea, 20, 0, Engine.Profile.Current.ParalyzedHue, "麻痺顏色", 40, 0);
-            _invulnerableColorPickerBox = CreateClickableColorBox(rightArea, 20, 0, Engine.Profile.Current.InvulnerableHue, "無敵顏色", 40, 0);
-            _noColorOutOfRangeObjects = CreateCheckBox(rightArea, "超出範圍的目標無色", Engine.Profile.Current.NoColorObjectsOutOfRange, 0, 5);
-            _useStandardSkillsGump = CreateCheckBox(rightArea, "使用標準技能組件", Engine.Profile.Current.StandardSkillsGump, 0, 0);
-            _showMobileNameIncoming = CreateCheckBox(rightArea, "顯示新出現的生物", Engine.Profile.Current.ShowNewMobileNameIncoming, 0, 0);
-            _showCorpseNameIncoming = CreateCheckBox(rightArea, "顯示新出現的尸體", Engine.Profile.Current.ShowNewCorpseNameIncoming, 0, 0);
-            _sallosEasyGrab = CreateCheckBox(rightArea, "商人容易抓住", Engine.Profile.Current.SallosEasyGrab, 0, 0);
-            _partyInviteGump = CreateCheckBox(rightArea, "顯示隊伍邀請組件", Engine.Profile.Current.PartyInviteGump, 0, 0);
+            _highlightObjects = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HighlightGameObjects, Engine.Profile.Current.HighlightGameObjects, 0, 20);
+            _enablePathfind = CreateCheckBox(rightArea, Language.Language.UI_Options_General_EnablePathfind, Engine.Profile.Current.EnablePathfind, 0, 0);
+            _useShiftPathfind = CreateCheckBox(rightArea, Language.Language.UI_Options_General_ShiftPathfind, Engine.Profile.Current.UseShiftToPathfind, 0, 0);
+            _alwaysRun = CreateCheckBox(rightArea, Language.Language.UI_Options_General_AlwaysRun, Engine.Profile.Current.AlwaysRun, 0, 0);
+            _enableTopbar = CreateCheckBox(rightArea, Language.Language.UI_Options_General_TopbarGumpIsDisabled, Engine.Profile.Current.TopbarGumpIsDisabled, 0, 0);
+            _holdDownKeyTab = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HoldDownKeyTab, Engine.Profile.Current.HoldDownKeyTab, 0, 0);
+            _holdDownKeyAlt = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HoldDownKeyAltToCloseAnchored, Engine.Profile.Current.HoldDownKeyAltToCloseAnchored, 0, 0);
+            _holdShiftForContext = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HoldShiftForContext, Engine.Profile.Current.HoldShiftForContext, 0, 0);
+            _holdShiftToSplitStack = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HoldShiftSplit, Engine.Profile.Current.HoldShiftToSplitStack, 0, 0);
+            _highlightByState = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HighlightMobilesByFlags, Engine.Profile.Current.HighlightMobilesByFlags, 0, 0);
+            _poisonColorPickerBox = CreateClickableColorBox(rightArea, 20, 5, Engine.Profile.Current.PoisonHue, Language.Language.UI_Options_General_PoisonHue, 40, 5);
+            _paralyzedColorPickerBox = CreateClickableColorBox(rightArea, 20, 0, Engine.Profile.Current.ParalyzedHue, Language.Language.UI_Options_General_ParalyzedHue, 40, 0);
+            _invulnerableColorPickerBox = CreateClickableColorBox(rightArea, 20, 0, Engine.Profile.Current.InvulnerableHue, Language.Language.UI_Options_General_InvulnerableHue, 40, 0);
+            _noColorOutOfRangeObjects = CreateCheckBox(rightArea, Language.Language.UI_Options_General_NoColorObjectsOutOfRange, Engine.Profile.Current.NoColorObjectsOutOfRange, 0, 5);
+            _useStandardSkillsGump = CreateCheckBox(rightArea, Language.Language.UI_Options_General_StandardSkillsGump, Engine.Profile.Current.StandardSkillsGump, 0, 0);
+            _showMobileNameIncoming = CreateCheckBox(rightArea, Language.Language.UI_Options_General_ShowNewMobileNameIncoming, Engine.Profile.Current.ShowNewMobileNameIncoming, 0, 0);
+            _showCorpseNameIncoming = CreateCheckBox(rightArea, Language.Language.UI_Options_General_ShowNewCorpseNameIncoming, Engine.Profile.Current.ShowNewCorpseNameIncoming, 0, 0);
+            _sallosEasyGrab = CreateCheckBox(rightArea, Language.Language.UI_Options_General_SallosEasyGrab, Engine.Profile.Current.SallosEasyGrab, 0, 0);
+            _partyInviteGump = CreateCheckBox(rightArea, Language.Language.UI_Options_General_ShowPartyGump, Engine.Profile.Current.PartyInviteGump, 0, 0);
 
             
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            _useCircleOfTransparency = new Checkbox(0x00D2, 0x00D3, "打開周邊透視", FONT, HUE_FONT)
+            _useCircleOfTransparency = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_General_UseCircleOfTransparency, FONT, HUE_FONT)
             {
                 Y = 20,
                 IsChecked = Engine.Profile.Current.UseCircleOfTransparency
@@ -310,15 +323,15 @@ namespace ClassicUO.Game.UI.Gumps
             rightArea.Add(item);
 
 
-            _drawRoofs = CreateCheckBox(rightArea, "隱藏屋頂", !Engine.Profile.Current.DrawRoofs, 0, 15);
-            _treeToStumps = CreateCheckBox(rightArea, "樹變樹樁", Engine.Profile.Current.TreeToStumps, 0, 0);
-            _hideVegetation = CreateCheckBox(rightArea, "隱藏植被", Engine.Profile.Current.HideVegetation, 0, 0);
-            _enableCaveBorder = CreateCheckBox(rightArea, "標記洞穴地磚", Engine.Profile.Current.EnableCaveBorder, 0, 0);
+            _drawRoofs = CreateCheckBox(rightArea, Language.Language.UI_Options_General_DrawRoofs, !Engine.Profile.Current.DrawRoofs, 0, 15);
+            _treeToStumps = CreateCheckBox(rightArea, Language.Language.UI_Options_General_TreeToStumps, Engine.Profile.Current.TreeToStumps, 0, 0);
+            _hideVegetation = CreateCheckBox(rightArea, Language.Language.UI_Options_General_HideVegetation, Engine.Profile.Current.HideVegetation, 0, 0);
+            _enableCaveBorder = CreateCheckBox(rightArea, Language.Language.UI_Options_General_EnableCaveBorder, Engine.Profile.Current.EnableCaveBorder, 0, 0);
 
 
             ScrollAreaItem hpAreaItem = new ScrollAreaItem();
 
-            _showHpMobile = new Checkbox(0x00D2, 0x00D3, "顯示生命", FONT, HUE_FONT)
+            _showHpMobile = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_General_ShowMobilesHP, FONT, HUE_FONT)
             {
                 X = 0, Y = 20, IsChecked = Engine.Profile.Current.ShowMobilesHP
             };
@@ -332,11 +345,11 @@ namespace ClassicUO.Game.UI.Gumps
 
             _hpComboBox = new Combobox(_showHpMobile.Bounds.Right + 10, 20, 150, new[]
             {
-                "百分百", "線條", "同時"
+                Language.Language.UI_Options_General_ShowMobilesHP_Percentage, Language.Language.UI_Options_General_ShowMobilesHP_Line, Language.Language.UI_Options_General_ShowMobilesHP_Both
             }, mode);
             hpAreaItem.Add(_hpComboBox);
 
-            text = new Label("顯示方式:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_General_ShowMobilesHP_MobileHPShowWhen, true, HUE_FONT)
             {
                 X = _showHpMobile.Bounds.Right + 170,
                 Y = 20
@@ -350,7 +363,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             _hpComboBoxShowWhen = new Combobox(text.Bounds.Right + 10, 20, 150, new[]
             {
-                "總是", "少於100%", "智能"
+                Language.Language.UI_Options_General_ShowMobilesHP_MobileHPShowWhen_Always, Language.Language.UI_Options_General_ShowMobilesHP_MobileHPShowWhen_LessThan100, Language.Language.UI_Options_General_ShowMobilesHP_MobileHPShowWhen_Smart
             }, mode);
             hpAreaItem.Add(_hpComboBoxShowWhen);
 
@@ -359,7 +372,7 @@ namespace ClassicUO.Game.UI.Gumps
             if (mode < 0 || mode > 2)
                 mode = 0;
 
-            text = new Label("關閉血條:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_General_CloseHealthbarGumpWhen, true, HUE_FONT)
             {
                 Y = _hpComboBox.Bounds.Bottom + 10
             };
@@ -367,11 +380,11 @@ namespace ClassicUO.Game.UI.Gumps
 
             _healtbarType = new Combobox(text.Bounds.Right + 10, _hpComboBox.Bounds.Bottom + 10, 150, new[]
             {
-                "無", "生物超出範圍", "生物死亡"
+                Language.Language.UI_Options_General_CloseHealthbarGumpWhen_None, Language.Language.UI_Options_General_CloseHealthbarGumpWhen_MobileOutOfRange, Language.Language.UI_Options_General_CloseHealthbarGumpWhen_MobileIsDead
             }, mode);
             hpAreaItem.Add(_healtbarType);
 
-            text = new Label("視野: ", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_General_FieldsType, true, HUE_FONT)
             {
                 Y = _hpComboBox.Bounds.Bottom + 45
             };
@@ -384,7 +397,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             _fieldsType = new Combobox(text.Bounds.Right + 10, _hpComboBox.Bounds.Bottom + 45, 150, new[]
             {
-                "常規", "靜態", "貼圖"
+                Language.Language.UI_Options_General_FieldsType_NormalFields, Language.Language.UI_Options_General_FieldsType_StaticFields, Language.Language.UI_Options_General_FieldsType_TileFields
             }, mode);
 
             hpAreaItem.Add(_fieldsType);
@@ -393,7 +406,7 @@ namespace ClassicUO.Game.UI.Gumps
             _circleOfTranspRadius.IsVisible = _useCircleOfTransparency.IsChecked;
 
             hpAreaItem = new ScrollAreaItem();
-            Control c = new Label("商店組件尺寸 (60的倍數): ", true, HUE_FONT) {Y = 10};
+            Control c = new Label(Language.Language.UI_Options_General_ShopGumpSize, true, HUE_FONT) {Y = 10};
             hpAreaItem.Add(c);
             hpAreaItem.Add(_vendorGumpSize = new ArrowNumbersTextBox(c.Width + 5, 10, 60, 60, 60, 240, FONT, hue: 1) {Text = Engine.Profile.Current.VendorGumpHeight.ToString(), Tag = Engine.Profile.Current.VendorGumpHeight});
             rightArea.Add(hpAreaItem);
@@ -410,7 +423,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            _enableSounds = new Checkbox(0x00D2, 0x00D3, "聲音", FONT, HUE_FONT)
+            _enableSounds = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Sounds_Sounds, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.EnableSound
             };
@@ -423,7 +436,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
 
-            _enableMusic = new Checkbox(0x00D2, 0x00D3, "音樂", FONT, HUE_FONT)
+            _enableMusic = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Sounds_Music, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.EnableMusic
             };
@@ -436,7 +449,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
 
-            _loginMusic = new Checkbox(0x00D2, 0x00D3, "登錄音樂", FONT, HUE_FONT)
+            _loginMusic = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Sounds_LoginMusic, FONT, HUE_FONT)
             {
                 IsChecked = Engine.GlobalSettings.LoginMusic
             };
@@ -447,9 +460,9 @@ namespace ClassicUO.Game.UI.Gumps
             rightArea.Add(item);
 
 
-            _footStepsSound = CreateCheckBox(rightArea, "玩家腳步聲", Engine.Profile.Current.EnableFootstepsSound, 0, 15);
-            _combatMusic = CreateCheckBox(rightArea, "戰鬥音樂", Engine.Profile.Current.EnableCombatMusic, 0, 0);
-            _musicInBackground = CreateCheckBox(rightArea, "未指定時循環播放", Engine.Profile.Current.ReproduceSoundsInBackground, 0, 0);
+            _footStepsSound = CreateCheckBox(rightArea, Language.Language.UI_Options_Sounds_Footsteps, Engine.Profile.Current.EnableFootstepsSound, 0, 15);
+            _combatMusic = CreateCheckBox(rightArea, Language.Language.UI_Options_Sounds_CombatMusic, Engine.Profile.Current.EnableCombatMusic, 0, 0);
+            _musicInBackground = CreateCheckBox(rightArea, Language.Language.UI_Options_Sounds_ReproduceSoundsInBackground, Engine.Profile.Current.ReproduceSoundsInBackground, 0, 0);
 
 
             _loginMusicVolume.IsVisible = _loginMusic.IsChecked;
@@ -466,11 +479,11 @@ namespace ClassicUO.Game.UI.Gumps
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
             Label text;
 
-            _debugControls = CreateCheckBox(rightArea, "調試模式（綠是很多框~~）", Engine.GlobalSettings.Debug, 0, 0);
+            _debugControls = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_Debug, Engine.GlobalSettings.Debug, 0, 0);
 
             // [BLOCK] game size
             {
-                _gameWindowFullsize = new Checkbox(0x00D2, 0x00D3, "满窗界面", FONT, HUE_FONT)
+                _gameWindowFullsize = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_GameWindowFullSize, FONT, HUE_FONT)
                 {
                     IsChecked = Engine.Profile.Current.GameWindowFullSize
                 };
@@ -480,7 +493,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 _windowSizeArea = new ScrollAreaItem();
 
-                _gameWindowLock = new Checkbox(0x00D2, 0x00D3, "鎖定遊戲窗口", FONT, HUE_FONT)
+                _gameWindowLock = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_GameWindowLock, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 15,
@@ -489,7 +502,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 _windowSizeArea.Add(_gameWindowLock);
 
-                text = new Label("遊戲窗口大小: ", true, HUE_FONT)
+                text = new Label(Language.Language.UI_Options_Video_GameWindowSize, true, HUE_FONT)
                 {
                     X = 20,
                     Y = 40
@@ -516,7 +529,7 @@ namespace ClassicUO.Game.UI.Gumps
                     UNumericOnly = true
                 });
 
-                text = new Label("遊戲窗口位置: ", true, HUE_FONT)
+                text = new Label(Language.Language.UI_Options_Video_GameWindowPosition, true, HUE_FONT)
                 {
                     X = 205,
                     Y = 40
@@ -549,7 +562,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             // [BLOCK] scale
             {
-                _zoomCheckbox = new Checkbox(0x00D2, 0x00D3, "開啟縮放 (Ctrl + 鼠標滾輪)", FONT, HUE_FONT)
+                _zoomCheckbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_EnableScaleZoom, FONT, HUE_FONT)
                 {
                     IsChecked = Engine.Profile.Current.EnableScaleZoom
                 };
@@ -559,7 +572,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 _zoomSizeArea = new ScrollAreaItem();
 
-                _savezoomCheckbox = new Checkbox(0x00D2, 0x00D3, "退出保存縮放設置", FONT, HUE_FONT)
+                _savezoomCheckbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_SaveScaleAfterClose, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 15,
@@ -567,7 +580,7 @@ namespace ClassicUO.Game.UI.Gumps
                 };
                 _zoomSizeArea.Add(_savezoomCheckbox);
 
-                _restorezoomCheckbox = new Checkbox(0x00D2, 0x00D3, "釋放Ctrl鍵回復窗口", FONT, HUE_FONT)
+                _restorezoomCheckbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_RestoreScaleAfterUnpressCtrl, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 35,
@@ -579,19 +592,19 @@ namespace ClassicUO.Game.UI.Gumps
                 _zoomSizeArea.IsVisible = _zoomCheckbox.IsChecked;
             }
 
-            _enableDeathScreen = CreateCheckBox(rightArea, "啟用死亡屏幕", Engine.Profile.Current.EnableDeathScreen, 0, 10);
-            _enableBlackWhiteEffect = CreateCheckBox(rightArea, "死亡黑白模式", Engine.Profile.Current.EnableBlackWhiteEffect, 0, 0);
+            _enableDeathScreen = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_EnableDeathScreen, Engine.Profile.Current.EnableDeathScreen, 0, 10);
+            _enableBlackWhiteEffect = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_EnableBlackWhiteEffect, Engine.Profile.Current.EnableBlackWhiteEffect, 0, 0);
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            text = new Label("- 狀態組件類型:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_Video_ShardType, true, HUE_FONT)
             {
                 Y = 30
             };
 
             item.Add(text);
 
-            _shardType = new Combobox(text.Width + 20, text.Y, 100, new[] {"新模式", "舊模式", "亂七八糟模式"})
+            _shardType = new Combobox(text.Width + 20, text.Y, 100, new[] {Language.Language.UI_Options_Video_ShardType_Modern, Language.Language.UI_Options_Video_ShardType_Old, Language.Language.UI_Options_Video_ShardType_Outlands })
             {
                 SelectedIndex = Engine.GlobalSettings.ShardType
             };
@@ -600,7 +613,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
             item.Y = 30;
-            text = new Label("- 亮度:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_Video_Brighlight, true, HUE_FONT)
             {
                 Y = 30,
                 IsVisible = false,
@@ -612,7 +625,7 @@ namespace ClassicUO.Game.UI.Gumps
             rightArea.Add(item);
 
             item = new ScrollAreaItem();
-            _enableLight = new Checkbox(0x00D2, 0x00D3, "光照級別", FONT, HUE_FONT)
+            _enableLight = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_LightLevel, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.UseCustomLightLevel
             };
@@ -622,10 +635,10 @@ namespace ClassicUO.Game.UI.Gumps
             item.Add(_lightBar);
             rightArea.Add(item);
 
-            _useColoredLights = CreateCheckBox(rightArea, "使用顏色光源", Engine.Profile.Current.UseColoredLights, 0, 0);
-            _darkNights = CreateCheckBox(rightArea, "黑夜", Engine.Profile.Current.UseDarkNights, 0, 0);
+            _useColoredLights = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_UseColoredLights, Engine.Profile.Current.UseColoredLights, 0, 0);
+            _darkNights = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_UseDarkNights, Engine.Profile.Current.UseDarkNights, 0, 0);
 
-            _enableShadows = new Checkbox(0x00D2, 0x00D3, "陰影", FONT, HUE_FONT)
+            _enableShadows = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Video_ShadowsEnabled, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.ShadowsEnabled
             };
@@ -634,24 +647,24 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
 
-            text = new Label("- 腳下光環:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_Video_AuraUnderFeet, true, HUE_FONT)
             {
                 Y = 10
             };
             item.Add(text);
 
-            _auraType = new Combobox(text.Width + 20, text.Y, 100, new[] {"無", "戰鬥模式開啟", "Ctrl+Shift", "隨時開啟"})
+            _auraType = new Combobox(text.Width + 20, text.Y, 100, new[] {Language.Language.UI_Options_Video_AuraUnderFeet_None, Language.Language.UI_Options_Video_AuraUnderFeet_Warmode, Language.Language.UI_Options_Video_AuraUnderFeet_CtrlShift, Language.Language.UI_Options_Video_AuraUnderFeet_Always })
             {
                 SelectedIndex = Engine.Profile.Current.AuraUnderFeetType
             };
             item.Add(_auraType);
             rightArea.Add(item);
 
-            _partyAura = CreateCheckBox(rightArea, "自定義隊伍成員光環", Engine.Profile.Current.PartyAura, 0, 0);
-            _partyAuraColorPickerBox = CreateClickableColorBox(rightArea, 20, 5, Engine.Profile.Current.PartyAuraHue, "隊伍光環顏色", 40, 5);
-            _runMouseInSeparateThread = CreateCheckBox(rightArea, "單獨線程中運行鼠標", Engine.GlobalSettings.RunMouseInASeparateThread, 0, 5);
-            _auraMouse = CreateCheckBox(rightArea, "鼠標目標光環", Engine.Profile.Current.AuraOnMouse, 0, 0);
-            _xBR = CreateCheckBox(rightArea, "使用xBR效果[BETA]", Engine.Profile.Current.UseXBR, 0, 0);
+            _partyAura = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_PartyAura, Engine.Profile.Current.PartyAura, 0, 0);
+            _partyAuraColorPickerBox = CreateClickableColorBox(rightArea, 20, 5, Engine.Profile.Current.PartyAuraHue, Language.Language.UI_Options_Video_PartyAuraHue, 40, 5);
+            _runMouseInSeparateThread = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_RunMouseInASeparateThread, Engine.GlobalSettings.RunMouseInASeparateThread, 0, 5);
+            _auraMouse = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_AuraOnMouse, Engine.Profile.Current.AuraOnMouse, 0, 0);
+            _xBR = CreateCheckBox(rightArea, Language.Language.UI_Options_Video_UseXBR, Engine.Profile.Current.UseXBR, 0, 0);
 
             Add(rightArea, PAGE);
         }
@@ -662,11 +675,11 @@ namespace ClassicUO.Game.UI.Gumps
             const int PAGE = 4;
 
             ScrollArea rightArea = new ScrollArea(190, 52 + 25 + 4, 150, 360, true);
-            NiceButton addButton = new NiceButton(190, 20, 130, 20, ButtonAction.Activate, "新建快捷鍵") {IsSelectable = false, ButtonParameter = (int) Buttons.NewMacro};
+            NiceButton addButton = new NiceButton(190, 20, 130, 20, ButtonAction.Activate, Language.Language.UI_Options_Macro_NewMacro) {IsSelectable = false, ButtonParameter = (int) Buttons.NewMacro};
 
             addButton.MouseUp += (sender, e) =>
             {
-                EntryDialog dialog = new EntryDialog(250, 150, "快捷鍵名:", name =>
+                EntryDialog dialog = new EntryDialog(250, 150, Language.Language.UI_Options_Macro_MacroName, name =>
                 {
                     if (string.IsNullOrWhiteSpace(name))
                         return;
@@ -716,7 +729,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             Add(addButton, PAGE);
 
-            NiceButton delButton = new NiceButton(190, 52, 130, 20, ButtonAction.Activate, "刪除快捷鍵") {IsSelectable = false, ButtonParameter = (int) Buttons.DeleteMacro};
+            NiceButton delButton = new NiceButton(190, 52, 130, 20, ButtonAction.Activate, Language.Language.UI_Options_Macro_DeleteMacro) {IsSelectable = false, ButtonParameter = (int) Buttons.DeleteMacro};
 
             delButton.MouseUp += (ss, ee) =>
             {
@@ -726,7 +739,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 if (nb != null)
                 {
-                    QuestionGump dialog = new QuestionGump("確定刪除它?", b =>
+                    QuestionGump dialog = new QuestionGump(Language.Language.UI_Options_Macro_QuestionText, b =>
                     {
                         if (!b)
                             return;
@@ -795,14 +808,14 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            _overrideAllFonts = new Checkbox(0x00D2, 0x00D3, "覆蓋遊戲字體", FONT, HUE_FONT)
+            _overrideAllFonts = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Fonts_OverrideAllFonts, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.OverrideAllFonts
             };
 
             _overrideAllFontsIsUnicodeCheckbox = new Combobox(_overrideAllFonts.Width + 5, _overrideAllFonts.Y, 100, new[]
             {
-                "ASCII", "Unicode"
+                Language.Language.UI_Options_Fonts_Encoded_ASCII, Language.Language.UI_Options_Fonts_Encoded_Unicode
             }, Engine.Profile.Current.OverrideAllFontsIsUnicode ? 1 : 0)
             {
                 IsVisible = _overrideAllFonts.IsChecked
@@ -815,7 +828,7 @@ namespace ClassicUO.Game.UI.Gumps
 
 
 
-            Label text = new Label("對話字體:", true, HUE_FONT)
+            Label text = new Label(Language.Language.UI_Options_Fonts_SpeechFont, true, HUE_FONT)
             {
                 Y = 20,
             };
@@ -835,7 +848,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            _scaleSpeechDelay = new Checkbox(0x00D2, 0x00D3, "調節對話延遲", FONT, HUE_FONT)
+            _scaleSpeechDelay = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Speech_ScaleSpeechDelay, FONT, HUE_FONT)
             {
                 IsChecked = Engine.Profile.Current.ScaleSpeechDelay
             };
@@ -845,13 +858,13 @@ namespace ClassicUO.Game.UI.Gumps
             item.Add(_sliderSpeechDelay);
             rightArea.Add(item);
 
-            _saveJournalCheckBox = CreateCheckBox(rightArea, "保存日誌到遊戲目錄", false, 0, 0);
+            _saveJournalCheckBox = CreateCheckBox(rightArea, Language.Language.UI_Options_Speech_SaveJournalToFile, false, 0, 0);
             _saveJournalCheckBox.ValueChanged += (o, e) => { World.Journal.CreateWriter(_saveJournalCheckBox.IsChecked); };
             _saveJournalCheckBox.IsChecked = Engine.Profile.Current.SaveJournalToFile;
 
             // [BLOCK] activate chat
             {
-                _chatAfterEnter = new Checkbox(0x00D2, 0x00D3, "按回車激活聊天", FONT, HUE_FONT)
+                _chatAfterEnter = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Speech_ActivateChatAfterEnter, FONT, HUE_FONT)
                 {
                     Y = 0,
                     IsChecked = Engine.Profile.Current.ActivateChatAfterEnter
@@ -861,7 +874,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 _activeChatArea = new ScrollAreaItem();
 
-                _chatAdditionalButtonsCheckbox = new Checkbox(0x00D2, 0x00D3, "使用聊天激活鍵: ! ; : / \\ , . [ | -", FONT, HUE_FONT)
+                _chatAdditionalButtonsCheckbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Speech_ActivateChatAdditionalButtons, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 15,
@@ -869,7 +882,7 @@ namespace ClassicUO.Game.UI.Gumps
                 };
                 _activeChatArea.Add(_chatAdditionalButtonsCheckbox);
 
-                _chatShiftEnterCheckbox = new Checkbox(0x00D2, 0x00D3, "使用`Shift+回車` 發送信息不關閉聊天", FONT, HUE_FONT)
+                _chatShiftEnterCheckbox = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Speech_ActivateChatShiftEnterSupport, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 35,
@@ -882,13 +895,13 @@ namespace ClassicUO.Game.UI.Gumps
                 rightArea.Add(_activeChatArea);
             }
 
-            _speechColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.SpeechHue, "聊天文字顏色", 20, 20);
-            _emoteColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.EmoteHue, "表情文字顏色", 20, 0);
-            _yellColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.YellHue, "喊叫文字顏色", 20, 0);
-            _whisperColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.WhisperHue, "密語文字顏色", 20, 0);
-            _partyMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.PartyMessageHue, "隊伍信息顏色", 20, 0);
-            _guildMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.GuildMessageHue, "公會信息顏色", 20, 0);
-            _allyMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.AllyMessageHue, "聯盟信息顏色", 20, 0);
+            _speechColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.SpeechHue, Language.Language.UI_Options_Speech_SpeechHue, 20, 20);
+            _emoteColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.EmoteHue, Language.Language.UI_Options_Speech_EmoteHue, 20, 0);
+            _yellColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.YellHue, Language.Language.UI_Options_Speech_YellHue, 20, 0);
+            _whisperColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.WhisperHue, Language.Language.UI_Options_Speech_WhisperHue, 20, 0);
+            _partyMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.PartyMessageHue, Language.Language.UI_Options_Speech_PartyMessageHue, 20, 0);
+            _guildMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.GuildMessageHue, Language.Language.UI_Options_Speech_GuildMessageHue, 20, 0);
+            _allyMessageColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.AllyMessageHue, Language.Language.UI_Options_Speech_AllyMessageHue, 20, 0);
 
             _sliderSpeechDelay.IsVisible = _scaleSpeechDelay.IsChecked;
 
@@ -901,21 +914,21 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
-            _queryBeforAttackCheckbox = CreateCheckBox(rightArea, "攻擊前詢問", Engine.Profile.Current.EnabledCriminalActionQuery, 0, 0);
-            _spellFormatCheckbox = CreateCheckBox(rightArea, "開啟頭頂咒語格式", Engine.Profile.Current.EnabledSpellFormat, 0, 0);
-            _spellColoringCheckbox = CreateCheckBox(rightArea, "開啟頭頂咒語染色", Engine.Profile.Current.EnabledSpellHue, 0, 0);
-            _castSpellsByOneClick = CreateCheckBox(rightArea, "單機施法", Engine.Profile.Current.CastSpellsByOneClick, 0, 0);
+            _queryBeforAttackCheckbox = CreateCheckBox(rightArea, Language.Language.UI_Options_Combat_EnabledCriminalActionQuery, Engine.Profile.Current.EnabledCriminalActionQuery, 0, 0);
+            _spellFormatCheckbox = CreateCheckBox(rightArea, Language.Language.UI_Options_Combat_EnabledSpellFormat, Engine.Profile.Current.EnabledSpellFormat, 0, 0);
+            _spellColoringCheckbox = CreateCheckBox(rightArea, Language.Language.UI_Options_Combat_EnabledSpellHue, Engine.Profile.Current.EnabledSpellHue, 0, 0);
+            _castSpellsByOneClick = CreateCheckBox(rightArea, Language.Language.UI_Options_Combat_CastSpellsByOneClick, Engine.Profile.Current.CastSpellsByOneClick, 0, 0);
 
-            _innocentColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.InnocentHue, "無害顏色", 20, 20);
-            _friendColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.FriendHue, "朋友顏色", 20, 0);
-            _crimialColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.CriminalHue, "犯罪顏色", 20, 0);
-            _genericColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.AnimalHue, "動物顏色", 20, 0);
-            _murdererColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.MurdererHue, "殺人犯顏色", 20, 0);
-            _enemyColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.EnemyHue, "敵人顏色", 20, 0);
+            _innocentColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.InnocentHue, Language.Language.UI_Options_Combat_InnocentHue, 20, 20);
+            _friendColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.FriendHue, Language.Language.UI_Options_Combat_FriendHue, 20, 0);
+            _crimialColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.CriminalHue, Language.Language.UI_Options_Combat_CriminalHue, 20, 0);
+            _genericColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.AnimalHue, Language.Language.UI_Options_Combat_AnimalHue, 20, 0);
+            _murdererColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.MurdererHue, Language.Language.UI_Options_Combat_MurdererHue, 20, 0);
+            _enemyColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.EnemyHue, Language.Language.UI_Options_Combat_EnemyHue, 20, 0);
 
-            _beneficColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.BeneficHue, "增益咒語染色", 20, 20);
-            _harmfulColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.HarmfulHue, "傷害咒語染色", 20, 0);
-            _neutralColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.NeutralHue, "中立咒語染色", 20, 0);
+            _beneficColorPickerBox = CreateClickableColorBox(rightArea, 0, 20, Engine.Profile.Current.BeneficHue, Language.Language.UI_Options_Combat_BeneficHue, 20, 20);
+            _harmfulColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.HarmfulHue, Language.Language.UI_Options_Combat_HarmfulHue, 20, 0);
+            _neutralColorPickerBox = CreateClickableColorBox(rightArea, 0, 0, Engine.Profile.Current.NeutralHue, Language.Language.UI_Options_Combat_NeutralHue, 20, 0);
 
             ScrollAreaItem it = new ScrollAreaItem();
 
@@ -926,7 +939,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Y = 20,
                 Width = 200,
                 Height = 30
-            }, " 咒語頭頂格式: ({power} 表示咒語 - {spell} 表示魔法)", rightArea.Width - 20);
+            }, Language.Language.UI_Options_Combat_SpellDisplayFormat, rightArea.Width - 20);
 
             rightArea.Add(it);
 
@@ -938,9 +951,9 @@ namespace ClassicUO.Game.UI.Gumps
             const int PAGE = 9;
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
-            _enableCounters = CreateCheckBox(rightArea, "啟用快捷物品欄", Engine.Profile.Current.CounterBarEnabled, 0, 0);
-            _highlightOnUse = CreateCheckBox(rightArea, "高亮使用", Engine.Profile.Current.CounterBarHighlightOnUse, 0, 0);
-            _enableAbbreviatedAmount = CreateCheckBox(rightArea, "當金額大於等於時啟用縮寫金額值", Engine.Profile.Current.CounterBarDisplayAbbreviatedAmount, 0, 0);
+            _enableCounters = CreateCheckBox(rightArea, Language.Language.UI_Options_Counters_CounterBarEnabled, Engine.Profile.Current.CounterBarEnabled, 0, 0);
+            _highlightOnUse = CreateCheckBox(rightArea, Language.Language.UI_Options_Counters_CounterBarHighlightOnUse, Engine.Profile.Current.CounterBarHighlightOnUse, 0, 0);
+            _enableAbbreviatedAmount = CreateCheckBox(rightArea, Language.Language.UI_Options_Counters_CounterBarDisplayAbbreviatedAmount, Engine.Profile.Current.CounterBarDisplayAbbreviatedAmount, 0, 0);
 
             ScrollAreaItem item = new ScrollAreaItem();
 
@@ -956,7 +969,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             rightArea.Add(item);
 
-            _highlightOnAmount = CreateCheckBox(rightArea, "當數量低於時高亮紅色", Engine.Profile.Current.CounterBarHighlightOnAmount, 0, 0);
+            _highlightOnAmount = CreateCheckBox(rightArea, Language.Language.UI_Options_Counters_CounterBarHighlightOnAmount, Engine.Profile.Current.CounterBarHighlightOnAmount, 0, 0);
 
             item = new ScrollAreaItem();
 
@@ -974,7 +987,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
 
-            Label text = new Label("物品欄排版:", true, HUE_FONT)
+            Label text = new Label(Language.Language.UI_Options_Counters_CounterLayout, true, HUE_FONT)
             {
                 Y = _highlightOnUse.Bounds.Bottom + 5
             };
@@ -986,7 +999,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             item = new ScrollAreaItem();
 
-            text = new Label("格子大小:", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_Counters_CellSize, true, HUE_FONT)
             {
                 X = 10,
                 Y = 10
@@ -1007,7 +1020,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = 30,
                 NumericOnly = true,
                 Text = Engine.Profile.Current.CounterBarRows.ToString()
-            }, "排:");
+            }, Language.Language.UI_Options_Counters_Rows);
 
             _columns = CreateInputField(item, new TextBox(FONT, 5, 80, 80)
             {
@@ -1017,7 +1030,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = 30,
                 NumericOnly = true,
                 Text = Engine.Profile.Current.CounterBarColumns.ToString()
-            }, "列:");
+            }, Language.Language.UI_Options_Counters_Columns);
 
             rightArea.Add(item);
 
@@ -1029,10 +1042,10 @@ namespace ClassicUO.Game.UI.Gumps
             const int PAGE = 10;
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
-            _enableSelectionArea = CreateCheckBox(rightArea, "開啟文字選擇區域", Engine.Profile.Current.EnableSelectionArea, 0, 0);
+            _enableSelectionArea = CreateCheckBox(rightArea, Language.Language.UI_Options_Experimental_EnableSelectionArea, Engine.Profile.Current.EnableSelectionArea, 0, 0);
 
-            _debugGumpIsDisabled = CreateCheckBox(rightArea, "關閉調試組件", Engine.Profile.Current.DebugGumpIsDisabled, 0, 0);
-            _restoreLastGameSize = CreateCheckBox(rightArea, "關閉自動最大化。重新登錄時回復窗口大小", Engine.Profile.Current.RestoreLastGameSize, 0, 0);
+            _debugGumpIsDisabled = CreateCheckBox(rightArea, Language.Language.UI_Options_Experimental_DebugGumpIsDisabled, Engine.Profile.Current.DebugGumpIsDisabled, 0, 0);
+            _restoreLastGameSize = CreateCheckBox(rightArea, Language.Language.UI_Options_Experimental_RestoreLastGameSize, Engine.Profile.Current.RestoreLastGameSize, 0, 0);
 
             //_autoOpenDoors = CreateCheckBox(rightArea, "自動開門", Engine.Profile.Current.AutoOpenDoors, 0, 0);
             //_smoothDoors = CreateCheckBox(rightArea, "平順開門", Engine.Profile.Current.SmoothDoors, 20, 5);
@@ -1082,7 +1095,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             // [BLOCK] disable hotkeys
             {
-                _disableDefaultHotkeys = new Checkbox(0x00D2, 0x00D3, "關閉默認UO快捷鍵", FONT, HUE_FONT)
+                _disableDefaultHotkeys = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_DisableDefaultHotkeys, FONT, HUE_FONT)
                 {
                     Y = 0,
                     IsChecked = Engine.Profile.Current.DisableDefaultHotkeys
@@ -1093,7 +1106,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 _defaultHotkeysArea = new ScrollAreaItem();
 
-                _disableArrowBtn = new Checkbox(0x00D2, 0x00D3, "關閉方向鍵和小鍵盤移動", FONT, HUE_FONT)
+                _disableArrowBtn = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_DisableArrowBtn, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 5,
@@ -1101,7 +1114,7 @@ namespace ClassicUO.Game.UI.Gumps
                 };
                 _defaultHotkeysArea.Add(_disableArrowBtn);
 
-                _disableTabBtn = new Checkbox(0x00D2, 0x00D3, "關閉TAB切換戰鬥模式", FONT, HUE_FONT)
+                _disableTabBtn = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_DisableTabBtn, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 25,
@@ -1109,7 +1122,7 @@ namespace ClassicUO.Game.UI.Gumps
                 };
                 _defaultHotkeysArea.Add(_disableTabBtn);
 
-                _disableCtrlQWBtn = new Checkbox(0x00D2, 0x00D3, "關閉Ctrl+Q/W消息歷史", FONT, HUE_FONT)
+                _disableCtrlQWBtn = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_DisableCtrlQWBtn, FONT, HUE_FONT)
                 {
                     X = 20,
                     Y = 45,
@@ -1122,23 +1135,23 @@ namespace ClassicUO.Game.UI.Gumps
                 _defaultHotkeysArea.IsVisible = _disableDefaultHotkeys.IsChecked;
             }
 
-            _enableDragSelect = CreateCheckBox(rightArea, "開啟框選打開生命條", Engine.Profile.Current.EnableDragSelect, 0, 0);
+            _enableDragSelect = CreateCheckBox(rightArea, Language.Language.UI_Options_Experimental_EnableDragSelect, Engine.Profile.Current.EnableDragSelect, 0, 0);
 
             _dragSelectArea = new ScrollAreaItem();
 
-            var text = new Label("框選功能鍵", true, HUE_FONT)
+            var text = new Label(Language.Language.UI_Options_Experimental_EnableDragSelect_Key, true, HUE_FONT)
             {
                 X = 20
             };
             _dragSelectArea.Add(text);
 
-            _dragSelectModifierKey = new Combobox(text.Width + 80, text.Y, 100, new[] {"無", "Ctrl", "Shift"})
+            _dragSelectModifierKey = new Combobox(text.Width + 80, text.Y, 100, new[] { Language.Language.UI_Options_Experimental_EnableDragSelect_Key_None, Language.Language.UI_Options_Experimental_EnableDragSelect_Key_Ctrl, Language.Language.UI_Options_Experimental_EnableDragSelect_Key_Shift })
             {
                 SelectedIndex = Engine.Profile.Current.DragSelectModifierKey
             };
             _dragSelectArea.Add(_dragSelectModifierKey);
 
-            _dragSelectHumanoidsOnly = new Checkbox(0x00D2, 0x00D3, "只選擇人形生物", FONT, HUE_FONT, true)
+            _dragSelectHumanoidsOnly = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_EnableDragSelect_DragSelectHumanoidsOnly, FONT, HUE_FONT, true)
             {
                 IsChecked = Engine.Profile.Current.DragSelectHumanoidsOnly,
                 X = 20,
@@ -1153,19 +1166,19 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem _containerGumpLocation = new ScrollAreaItem();
 
-            _overrideContainerLocation = new Checkbox(0x00D2, 0x00D3, "覆蓋容器組件位置", FONT, HUE_FONT, true)
+            _overrideContainerLocation = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_OverrideContainerLocation, FONT, HUE_FONT, true)
             {
                 IsChecked = Engine.Profile.Current.OverrideContainerLocation,
             };
 
-            _overrideContainerLocationSetting = new Combobox(_overrideContainerLocation.Width + 20, 0, 200, new[] { "靠近容器位置", "右上", "上次拖拽位置" }, Engine.Profile.Current.OverrideContainerLocationSetting);
+            _overrideContainerLocationSetting = new Combobox(_overrideContainerLocation.Width + 20, 0, 200, new[] { Language.Language.UI_Options_Experimental_OverrideContainerLocation_NearContainerPosition, Language.Language.UI_Options_Experimental_OverrideContainerLocation_TopRight, Language.Language.UI_Options_Experimental_OverrideContainerLocation_LastDraggedPosition }, Engine.Profile.Current.OverrideContainerLocationSetting);
 
             _containerGumpLocation.Add(_overrideContainerLocation);
             _containerGumpLocation.Add(_overrideContainerLocationSetting);
 
             rightArea.Add(_containerGumpLocation);
 
-            _showTargetRangeIndicator = new Checkbox(0x00D2, 0x00D3, "顯示目標範圍指示器", FONT, HUE_FONT, true)
+            _showTargetRangeIndicator = new Checkbox(0x00D2, 0x00D3, Language.Language.UI_Options_Experimental_ShowTargetRange, FONT, HUE_FONT, true)
             {
                 IsChecked = Engine.Profile.Current.ShowTargetRangeIndicator,
             };
@@ -1183,7 +1196,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
-            _showNetStats = CreateCheckBox(rightArea, "顯示網絡狀態", Engine.Profile.Current.ShowNetworkStats, 0, 0);
+            _showNetStats = CreateCheckBox(rightArea, Language.Language.UI_Options_Network_ShowNetworkStats, Engine.Profile.Current.ShowNetworkStats, 0, 0);
 
             Add(rightArea, PAGE);
         }
@@ -1194,19 +1207,19 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
 
-            _showInfoBar = CreateCheckBox(rightArea, "顯示信息條", Engine.Profile.Current.ShowInfoBar, 0, 0);
+            _showInfoBar = CreateCheckBox(rightArea, Language.Language.UI_Options_InfoBar_ShowInfoBar, Engine.Profile.Current.ShowInfoBar, 0, 0);
 
 
             ScrollAreaItem _infoBarHighlightScrollArea = new ScrollAreaItem();
 
-            _infoBarHighlightScrollArea.Add(new Label("數據高亮類型:", true, 999));
-            _infoBarHighlightType = new Combobox(130, 0, 150, new[] { "文字顏色", "著色條" }, Engine.Profile.Current.InfoBarHighlightType);
+            _infoBarHighlightScrollArea.Add(new Label(Language.Language.UI_Options_InfoBar_InfoBarHighlightType, true, 999));
+            _infoBarHighlightType = new Combobox(130, 0, 150, new[] { Language.Language.UI_Options_InfoBar_InfoBarHighlightType_TextColor, Language.Language.UI_Options_InfoBar_InfoBarHighlightType_ColoredBars }, Engine.Profile.Current.InfoBarHighlightType);
             _infoBarHighlightScrollArea.Add(_infoBarHighlightType);
 
             rightArea.Add(_infoBarHighlightScrollArea);
 
 
-            NiceButton nb = new NiceButton(0, 10, 90, 20, ButtonAction.Activate, "+ 添加項", 0, IO.Resources.TEXT_ALIGN_TYPE.TS_LEFT) { ButtonParameter = 999 };
+            NiceButton nb = new NiceButton(0, 10, 90, 20, ButtonAction.Activate, Language.Language.UI_Options_InfoBar_AddItem, 0, IO.Resources.TEXT_ALIGN_TYPE.TS_LEFT) { ButtonParameter = 999 };
             nb.MouseUp += (sender, e) =>
             {
                 InfoBarBuilderControl ibbc = new InfoBarBuilderControl(new InfoBarItem("", InfoBarVars.HP, 0x3B9));
@@ -1218,9 +1231,9 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem _infobarBuilderLabels = new ScrollAreaItem();
 
-            _infobarBuilderLabels.Add(new Label("標籤", true, 999) { Y = 15 });
-            _infobarBuilderLabels.Add(new Label("顏色", true, 999) { X = 150, Y = 15 });
-            _infobarBuilderLabels.Add(new Label("數據", true, 999) { X = 200, Y = 15 });
+            _infobarBuilderLabels.Add(new Label(Language.Language.UI_Options_InfoBar_Label, true, 999) { Y = 15 });
+            _infobarBuilderLabels.Add(new Label(Language.Language.UI_Options_InfoBar_Color, true, 999) { X = 150, Y = 15 });
+            _infobarBuilderLabels.Add(new Label(Language.Language.UI_Options_InfoBar_Data, true, 999) { X = 200, Y = 15 });
 
             rightArea.Add(_infobarBuilderLabels);
             rightArea.Add(new Line(0, 0, rightArea.Width, 1, Color.Gray.PackedValue));
@@ -1251,7 +1264,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             ScrollAreaItem item = new ScrollAreaItem();
 
-            Label text = new Label("- 容器縮放:",true, HUE_FONT, font: FONT);
+            Label text = new Label(Language.Language.UI_Options_Container_Scale, true, HUE_FONT, font: FONT);
             item.Add(text);
 
             _containersScale = new HSliderBar(text.X + text.Width + 10, text.Y + 5, 200, Constants.MIN_CONTAINER_SIZE_PERC, Constants.MAX_CONTAINER_SIZE_PERC, Engine.Profile.Current.ContainersScale, HSliderBarStyle.MetalWidgetRecessedBar, true, FONT, HUE_FONT);
@@ -1259,7 +1272,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             rightArea.Add(item);
 
-            _containerScaleItems = CreateCheckBox(rightArea, "縮放容器內物品", Engine.Profile.Current.ScaleItemsInsideContainers, 0, 20);
+            _containerScaleItems = CreateCheckBox(rightArea, Language.Language.UI_Options_Container_ItemScale, Engine.Profile.Current.ScaleItemsInsideContainers, 0, 20);
 
             Add(rightArea, PAGE);
         }
@@ -1268,12 +1281,12 @@ namespace ClassicUO.Game.UI.Gumps
         {
             const int PAGE = 14;
             ScrollArea rightArea = new ScrollArea(190, 20, WIDTH - 210, 420, true);
-            _autoOpenDoors = CreateCheckBox(rightArea, "自動開門", Engine.Profile.Current.AutoOpenDoors, 0, 0);
-            _smoothDoors = CreateCheckBox(rightArea, "平順開門", Engine.Profile.Current.SmoothDoors, 20, 5);
+            _autoOpenDoors = CreateCheckBox(rightArea, Language.Language.UI_Options_AutoPilot_AutoOpenDoors, Engine.Profile.Current.AutoOpenDoors, 0, 0);
+            _smoothDoors = CreateCheckBox(rightArea, Language.Language.UI_Options_AutoPilot_SmoothDoors, Engine.Profile.Current.SmoothDoors, 20, 5);
             _autoOpenDoors.ValueChanged += (sender, e) => { _smoothDoors.IsVisible = _autoOpenDoors.IsChecked; };
             _autoOpenCorpseArea = new ScrollAreaItem();
             
-            _autoOpenCorpse = CreateCheckBox(rightArea, "自動開尸體", Engine.Profile.Current.AutoOpenCorpses, 0, 5);
+            _autoOpenCorpse = CreateCheckBox(rightArea, Language.Language.UI_Options_AutoPilot_AutoOpenCorpses, Engine.Profile.Current.AutoOpenCorpses, 0, 5);
             _autoOpenCorpse.ValueChanged += (sender, e) => { _autoOpenCorpseArea.IsVisible = _autoOpenCorpse.IsChecked; };
 
             _autoOpenCorpseRange = CreateInputField(_autoOpenCorpseArea, new TextBox(FONT, 2, 80, 80)
@@ -1284,7 +1297,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = 30,
                 NumericOnly = true,
                 Text = Engine.Profile.Current.AutoOpenCorpseRange.ToString()
-            }, "開尸體範圍:");
+            }, Language.Language.UI_Options_AutoPilot_AutoOpenCorpseRange);
 
             /* text = new Label("- Aura under feet:", true, HUE_FONT, 0, FONT)
             {
@@ -1296,16 +1309,16 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 SelectedIndex = Engine.Profile.Current.AuraUnderFeetType
             };*/
-            var text = new Label("開尸體選項:", true, HUE_FONT)
+            var text = new Label(Language.Language.UI_Options_AutoPilot_CorpseOpenOptions, true, HUE_FONT)
             {
-                Y = _autoOpenCorpseRange.Y + 30,
+                Y = _autoOpenCorpseRange.Y+30,
                 X = 10
             };
             _autoOpenCorpseArea.Add(text);
 
             _autoOpenCorpseOptions = new Combobox(text.Width + 20, text.Y, 150, new[]
             {
-                "無", "無目標", "未隱身", "同時"
+                Language.Language.UI_Options_AutoPilot_CorpseOpenOptions_None, Language.Language.UI_Options_AutoPilot_CorpseOpenOptions_NotTargeting, Language.Language.UI_Options_AutoPilot_CorpseOpenOptions_NotHiding, Language.Language.UI_Options_AutoPilot_CorpseOpenOptions_Both
             })
             {
                 SelectedIndex = Engine.Profile.Current.CorpseOpenOptions
@@ -1314,15 +1327,15 @@ namespace ClassicUO.Game.UI.Gumps
             rightArea.Add(_autoOpenCorpseArea);
             ScrollAreaItem fpsItem = new ScrollAreaItem();
 
-            text = new Label("格柵式拾取", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_AutoPilot_GridLoot, true, HUE_FONT)
             {
-                Y = _autoOpenCorpseOptions.Y
+                Y = _autoOpenCorpseArea.Y +30
             };
-            _gridLoot = new Combobox(text.X + text.Width + 10, text.Y, 200, new[] { "無", "僅格柵式拾取", "同時" }, Engine.Profile.Current.GridLootType);
+            _gridLoot = new Combobox(text.X + text.Width + 10, text.Y, 200, new[] { Language.Language.UI_Options_AutoPilot_GridLoot_None, Language.Language.UI_Options_AutoPilot_GridLoot_GridLootOnly, Language.Language.UI_Options_AutoPilot_GridLoot_Both }, Engine.Profile.Current.GridLootType);
 
             fpsItem.Add(text);
             fpsItem.Add(_gridLoot);
-            text = new Label("格柵式拾取框大小", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_AutoPilot_GridLoot_Scale, true, HUE_FONT)
             {
                 Y = _gridLoot.Y + 30
             };
@@ -1330,7 +1343,7 @@ namespace ClassicUO.Game.UI.Gumps
             fpsItem.Add(text);
             fpsItem.Add(_corpseScale);
 
-            text = new Label("每行拾取個數", true, HUE_FONT)
+            text = new Label(Language.Language.UI_Options_AutoPilot_GridLoot_ItemInOneLine, true, HUE_FONT)
             {
                 Y = _corpseScale.Y + 30
             };
@@ -1338,15 +1351,51 @@ namespace ClassicUO.Game.UI.Gumps
 
             fpsItem.Add(text);
             fpsItem.Add(_itemScale);
-
             rightArea.Add(fpsItem);
-            
 
-            
-            _autoLootGold = CreateCheckBox(rightArea, "自動拾取金幣", Engine.Profile.Current.AutoLootGold, 0, 5);
+            _autoLootGold = CreateCheckBox(rightArea, Language.Language.UI_Options_AutiPilot_AutoLootCoin, Engine.Profile.Current.AutoLootGold, 0, 5);
+
+            _autoLootItem = CreateCheckBox(rightArea, Language.Language.UI_Options_AutiPilot_AutoLootItem, Engine.Profile.Current.AutoLootItem, 0, 5);
+            ScrollAreaItem lootItem = new ScrollAreaItem();
+            text = new Label(Language.Language.UI_Options_AutoPilot_AutoLoot_Delay, true, HUE_FONT)
+            {
+                Y = _autoLootItem.Y 
+            };
+            _autoLootDelay = new HSliderBar(text.X + text.Width + 10, text.Y, 150, 500, 2000, Engine.Profile.Current.AutoLootDelay, HSliderBarStyle.MetalWidgetRecessedBar, true, 0xff, 999);
+
+            lootItem.Add(text);
+            lootItem.Add(_autoLootDelay);
+            rightArea.Add(lootItem);
             //_autoOpenCorpse.ValueChanged += (sender, e) => { _autoLootGold.IsVisible = _autoOpenCorpse.IsChecked; };
             //_autoHealSelf = CreateCheckBox(rightArea, "自動補血", Engine.Profile.Current.AutoHealSelf, 0, 0);
+            NiceButton addButton = new NiceButton(_autoLootItem.X + 20, 0, 150, 20, ButtonAction.Activate, ">>"+Language.Language.UI_Options_AutiPilot_AutoLootSet+"<<") { IsSelectable = false, ButtonParameter = (int)Buttons.Lootlist };
+            addButton.MouseUp += (sender, e) =>
+            {
+                //LootListGump opt = Engine.UI.GetGump<LootListGump>();
 
+                //if (opt == null)
+                //{
+                //    Engine.UI.Add(opt = new LootListGump());
+                //    opt.SetInScreen();
+                //}
+                //else
+                //{
+                //    opt.SetInScreen();
+                //    opt.BringOnTop();
+                //}
+                Engine.UI.GetGump<LootListGump>()?.Dispose();
+                Engine.UI.Add(new LootListGump());
+            };
+            rightArea.Add(addButton);
+            _autoSellItem = CreateCheckBox(rightArea, Language.Language.UI_Options_AutiPilot_AutoSellItem, Engine.Profile.Current.AutoSellItem, 0, 5);
+            NiceButton sellButton = new NiceButton(_autoSellItem.X + 20, 0, 150, 20, ButtonAction.Activate, ">>" + Language.Language.UI_Options_AutiPilot_AutoSellSet + "<<") { IsSelectable = false, ButtonParameter = (int)Buttons.Lootlist };
+            sellButton.MouseUp += (sender, e) =>
+            {
+                
+                Engine.UI.GetGump<SellListGump>()?.Dispose();
+                Engine.UI.Add(new SellListGump());
+            };
+            rightArea.Add(sellButton);
             Add(rightArea, PAGE);
             _autoOpenCorpseArea.IsVisible = _autoOpenCorpse.IsChecked;
             //_autoLootGold.IsVisible = _autoOpenCorpse.IsChecked;
@@ -1364,15 +1413,16 @@ namespace ClassicUO.Game.UI.Gumps
             switch ((Buttons) buttonID)
             {
                 case Buttons.Update:
-                    QuestionGump dialog = new QuestionGump("確定更新？", b =>
+                    QuestionGump dialog = new QuestionGump(Language.Language.UI_SureUpdate, b =>
                     {
                         if (!b)
                             return;
 
                         Updater updater = new Updater();
-                        if (updater.Check())
+                        if (updater.HaveNewVersion())
                         {
-                            Dispose();
+                            
+                           // Dispose();
                         }
                     });
                     Engine.UI.Add(dialog);
@@ -1598,6 +1648,12 @@ namespace ClassicUO.Game.UI.Gumps
             WorldViewportGump vp = Engine.UI.GetGump<WorldViewportGump>();
 
             // general
+            if (_languageBox.SelectedIndex!= (int)Engine.Profile.Current.Language)
+            {
+                Language.Language.ChangeLanguage((Languages)_languageBox.SelectedIndex);
+                Engine.Profile.Current.Language = (Languages)_languageBox.SelectedIndex;
+            }
+            
             Engine.Profile.Current.MaxFPS = Engine.FpsLimit = _sliderFPS.Value;
             Engine.GlobalSettings.MaxLoginFPS = _sliderFPSLogin.Value;
             Engine.Profile.Current.HighlightGameObjects = _highlightObjects.IsChecked;
@@ -2018,10 +2074,13 @@ namespace ClassicUO.Game.UI.Gumps
             Engine.Profile.Current.AutoOpenCorpseRange = int.Parse(_autoOpenCorpseRange.Text);
             Engine.Profile.Current.CorpseOpenOptions = _autoOpenCorpseOptions.SelectedIndex;
             Engine.Profile.Current.AutoLootGold = _autoLootGold.IsChecked;
+            Engine.Profile.Current.AutoLootItem = _autoLootItem.IsChecked;
+            Engine.Profile.Current.AutoSellItem = _autoSellItem.IsChecked;
             //Engine.Profile.Current.AutoHealSelf = _autoHealSelf.IsChecked;
             Engine.Profile.Current.GridLootType = _gridLoot.SelectedIndex;
             Engine.Profile.Current.CorpseScale = _corpseScale.Value;
             Engine.Profile.Current.ItemScale = _itemScale.Value;
+            Engine.Profile.Current.AutoLootDelay = _autoLootDelay.Value;
 
             // containers
             int containerScale = Engine.Profile.Current.ContainersScale;
@@ -2150,6 +2209,7 @@ namespace ClassicUO.Game.UI.Gumps
             EnemyColor,
             MurdererColor,
             Update,
+            Lootlist,
 
             NewMacro,
             DeleteMacro,

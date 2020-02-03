@@ -70,7 +70,7 @@ namespace ClassicUO.Game.UI.Gumps
             _transactionItems = new Dictionary<Item, TransactionItem>();
             _shopItems = new Dictionary<Item, ShopItem>();
             _updateTotal = false;
-
+            
             int add = isBuyGump ? 0 : 6;
 
             GumpPic pic = new GumpPic(0, 0, _shopGumpParts[0 + add], 0);
@@ -268,6 +268,30 @@ namespace ClassicUO.Game.UI.Gumps
             shopItem.MouseUp += ShopItem_MouseClick;
             shopItem.MouseDoubleClick += ShopItem_MouseDoubleClick;
             _shopItems.Add(item, shopItem);
+            if (Engine.Profile.Current.AutoSellItem)
+            {
+                if (Engine.Profile.Current.SellList == null)
+                    Engine.Profile.Current.SellList = new List<ushort[]>();
+                foreach (ushort[] tosell in Engine.Profile.Current.SellList)
+                {
+                    if (item.Graphic == tosell[0] && item.Hue == tosell[1])
+                    {
+                        int total = shopItem.Amount;
+                        if (_transactionItems.TryGetValue(shopItem.Item, out TransactionItem transactionItem))
+                            transactionItem.Amount += total;
+                        else
+                        {
+                            transactionItem = new TransactionItem(shopItem.Item, total, shopItem.ShopItemName);
+                            transactionItem.OnIncreaseButtomClicked += TransactionItem_OnIncreaseButtomClicked;
+                            transactionItem.OnDecreaseButtomClicked += TransactionItem_OnDecreaseButtomClicked;
+                            _transactionScrollArea.Add(transactionItem);
+                            _transactionItems.Add(shopItem.Item, transactionItem);
+                        }
+                        shopItem.Amount -= total;
+                        _updateTotal = true;
+                    }
+                }
+            }
         }
 
         public void SetNameTo(Item item, string name)

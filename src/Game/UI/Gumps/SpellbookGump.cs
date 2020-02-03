@@ -115,6 +115,7 @@ namespace ClassicUO.Game.UI.Gumps
         private void CreateBook()
         {
             Clear();
+            
             _pageCornerLeft = _pageCornerRight = null;
             GetBookInfo(_spellBookType, out Graphic bookGraphic, out Graphic minimizedGraphic, out Graphic iconStartGraphic, out int maxSpellsCount, out int spellsOnPage, out int dictionaryPagesCount);
             _Iconized = new GumpPic(0, 0, minimizedGraphic, 0);
@@ -129,6 +130,9 @@ namespace ClassicUO.Game.UI.Gumps
             _pageCornerRight.Page = 1;
             _pageCornerRight.MouseUp += PageCornerOnMouseClick;
             _pageCornerRight.MouseDoubleClick += PageCornerOnMouseDoubleClick;
+
+            
+            
             int totalSpells = 0;
 
             Item item = World.Items.Get(LocalSerial);
@@ -451,6 +455,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
 
             SetActivePage(1);
+            
         }
 
         private SpellDefinition GetSpellDefinition(Control ctrl)
@@ -463,7 +468,7 @@ namespace ClassicUO.Game.UI.Gumps
         private SpellDefinition GetSpellDefinition(int idx)
         {
             SpellDefinition def = null;
-
+           
             switch (_spellBookType)
             {
                 case SpellBookType.Magery:
@@ -506,7 +511,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                     break;
             }
-
+            
             return def;
         }
 

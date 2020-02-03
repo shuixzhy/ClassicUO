@@ -21,6 +21,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -47,7 +48,7 @@ namespace ClassicUO.Game.UI.Gumps
         private int _eyeCorspeOffset;
         private GumpPic _eyeGumpPic;
         private bool _isCorspeContainer;
-
+        private bool looting = false;
         public ContainerGump() : base(0, 0)
         {
         }
@@ -88,7 +89,7 @@ namespace ClassicUO.Game.UI.Gumps
             _isCorspeContainer = Graphic == 0x0009;
 
             Item item = World.Items.Get(LocalSerial);
-
+            looting = false;
             if (item == null)
             {
                 Dispose();
@@ -130,6 +131,7 @@ namespace ClassicUO.Game.UI.Gumps
             Height = container.Height = (int) (container.Height * scale);
 
             ContainerGump gg = Engine.UI.Gumps.OfType<ContainerGump>().FirstOrDefault(s => s.LocalSerial == LocalSerial);
+            
 
             if (gg == null)
             {
@@ -176,7 +178,18 @@ namespace ClassicUO.Game.UI.Gumps
                 Y = gg.Y;
             }
 
-
+            //if (_isCorspeContainer)
+            //{
+            //    if (looting)
+            //    {
+            //        PlayerMobile.OpenedCorpses.Remove(LocalSerial);
+                   
+            //    }
+            //    else
+            //    {
+            //        PlayerMobile.OpenedandlootedCorpses.Add(LocalSerial);
+            //    }
+            //}
             if (_data.OpenSound != 0)
                 Engine.SceneManager.CurrentScene.Audio.PlaySound(_data.OpenSound);
         }
@@ -256,18 +269,35 @@ namespace ClassicUO.Game.UI.Gumps
         {
             foreach (ItemGump v in Children.OfType<ItemGump>().Where(s => e.Contains(s.LocalSerial)))
                 v.Dispose();
-
+            
             foreach (Serial s in e)
             {
                 var item = World.Items.Get(s);
-                if (this._isCorspeContainer && item.IsCoin && Engine.Profile.Current.AutoLootGold )
-                {
-                    GameActions.GrabItem(item, (ushort)item.Amount);
-                }
+                //if (this._isCorspeContainer && item.IsCoin && Engine.Profile.Current.AutoLootGold )
+                //{
+                //    looting = true;
+                //    GameActions.GrabItem(item, (ushort)item.Amount);
+                //}
+                //bool contain = false;
+                //if (Engine.Profile.Current.LootList == null)
+                //    Engine.Profile.Current.LootList = new List<ushort[]>();
+                //foreach (ushort[] i in Engine.Profile.Current.LootList)
+                //{
+                //    if (item.Graphic == i[0] && item.Hue == i[1])
+                //    {
+                //        contain = true;
+                //        break;
+                //    }
 
+                //}
+                //if (this._isCorspeContainer && contain && Engine.Profile.Current.AutoLootItem)
+                //{
+                //    looting = true;
+                //    GameActions.GrabItem(item, (ushort)item.Amount);
+                //}
                 if (item == null || item.ItemData.Layer == (int) Layer.Hair || item.ItemData.Layer == (int) Layer.Beard || item.ItemData.Layer == (int) Layer.Face)
                     continue;
-
+                
 
                 var itemControl = new ItemGump(item);
                 CheckItemControlPosition(itemControl, item);

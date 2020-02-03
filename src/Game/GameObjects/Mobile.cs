@@ -662,8 +662,10 @@ namespace ClassicUO.Game.GameObjects
                 {
                     if (AnimationFromServer)
                         SetAnimation(0xFF);
-
-                    int maxDelay = MovementSpeed.TimeToCompleteMovement(this, step.Run) - (int) Engine.FrameDelay[1];
+                    int move = MovementSpeed.TimeToCompleteMovement(this, step.Run);
+                    if (Engine.Profile.Current.RunFast && this is PlayerMobile)
+                        move = (short)(move * 0.6);
+                    int maxDelay = move - (int) Engine.FrameDelay[1];
                     int delay = (int) Engine.Ticks - (int) LastStepTime;
                     bool removeStep = delay >= maxDelay;
                     bool directionChange = false;
@@ -701,6 +703,11 @@ namespace ClassicUO.Game.GameObjects
                             MovementSpeed.GetPixelOffset(step.Direction, ref x, ref y, steps);
                             Offset.X = (sbyte) x;
                             Offset.Y = (sbyte) y;
+                            //if (Engine.Profile.Current.RunFast && this is PlayerMobile)
+                            //{
+                            //    Offset.X *= 2;
+                            //    Offset.Y *= 2;
+                            //}
                         }
                     }
                     else

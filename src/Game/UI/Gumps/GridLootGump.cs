@@ -1,5 +1,7 @@
-﻿using System.Linq;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using ClassicUO.Game.Data;
 using ClassicUO.Game.GameObjects;
 using ClassicUO.Game.Managers;
@@ -18,26 +20,48 @@ namespace ClassicUO.Game.UI.Gumps
         private readonly AlphaBlendControl _background;
         private readonly NiceButton _buttonPrev, _buttonNext;
         private readonly Item _corpse;
-
+        private static uint _time;
+        private int DELAY = 500;
         private int _currentPage = 1;
         private int _pagesCount;
-
+        private bool looting = false;
         private static int _lastX = Engine.Profile.Current.GridLootType == 2 ? 200 : 100;
         private static int _lastY = 100;
-
+        private Serial c;
         public GridLootGump(Serial local) : base(local, 0)
         {
             _corpse = World.Items.Get(local);
-
+            c = local;
+            //if (c == null)
+            //{ c = local; }
+            //else
+            //{
+            //    if(c != local)
+            //    {
+            //        X = _lastX += 10;
+            //        Y = _lastY += 10;
+            //        c = local;
+            //    }
+            //}
             if (_corpse == null)
             {
                 Dispose();
 
                 return;
             }
+            GridLootGump gg = Engine.UI.Gumps.OfType<GridLootGump>().FirstOrDefault(s => s.LocalSerial == LocalSerial);
 
-            X = _lastX + 10;
-            Y = _lastY + 10;
+            if (gg == null)
+            {
+                X = _lastX += 10 * Engine.Profile.Current.CorpseScale;
+                Y = _lastY += 10 * Engine.Profile.Current.CorpseScale;
+            }
+            else
+            {
+                X = gg.X;
+                Y = gg.Y;
+            }
+
             int gx = Engine.Profile.Current.GameWindowPosition.X + Engine.Profile.Current.GameWindowSize.X;
             int gy = Engine.Profile.Current.GameWindowPosition.Y + Engine.Profile.Current.GameWindowSize.Y;
 
@@ -56,11 +80,11 @@ namespace ClassicUO.Game.UI.Gumps
             Width = _background.Width;
             Height = _background.Height;
 
-            NiceButton setLootBag = new NiceButton(3, Height - 23, 50* Engine.Profile.Current.CorpseScale, 10 * Engine.Profile.Current.CorpseScale, ButtonAction.Activate, "設置拾取包") { ButtonParameter = 2, IsSelectable = false };
+            NiceButton setLootBag = new NiceButton(3, Height - 23, 50 * Engine.Profile.Current.CorpseScale, 10 * Engine.Profile.Current.CorpseScale, ButtonAction.Activate, Language.Language.UI_GridLoot_SetBag) { ButtonParameter = 2, IsSelectable = false };
             Add(setLootBag);
 
-            _buttonPrev = new NiceButton(Width - 50, Height - 20, 20, 20, ButtonAction.Activate, "<<") {ButtonParameter = 0, IsSelectable = false};
-            _buttonNext = new NiceButton(Width - 20, Height - 20, 20, 20, ButtonAction.Activate, ">>") {ButtonParameter = 1, IsSelectable = false};
+            _buttonPrev = new NiceButton(Width - 50, Height - 20, 20, 20, ButtonAction.Activate, "<<") { ButtonParameter = 0, IsSelectable = false };
+            _buttonNext = new NiceButton(Width - 20, Height - 20, 20, 20, ButtonAction.Activate, ">>") { ButtonParameter = 1, IsSelectable = false };
 
             _buttonNext.IsEnabled = _buttonPrev.IsEnabled = false;
             _buttonNext.IsVisible = _buttonPrev.IsVisible = false;
@@ -70,6 +94,7 @@ namespace ClassicUO.Game.UI.Gumps
             Add(_buttonNext);
 
             RedrawItems();
+
         }
 
         public override void OnButtonClick(int buttonID)
@@ -106,7 +131,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else if (buttonID == 2)
             {
-                GameActions.Print("選擇物品拾取後放進的容器。");
+                GameActions.Print(Language.Language.UI_GridLoot_ChooseContainer);
                 TargetManager.SetTargeting(CursorTarget.SetGrabBag, Serial.INVALID, TargetType.Neutral);
             }
             else
@@ -117,29 +142,60 @@ namespace ClassicUO.Game.UI.Gumps
         {
             int st = 10 * Engine.Profile.Current.CorpseScale;
             int size = (int)((Width - 10 * Engine.Profile.Current.CorpseScale) / Engine.Profile.Current.ItemScale - 10 * Engine.Profile.Current.CorpseScale);
-            
+
             int x = st;
             int y = st;
 
             foreach (GridLootItem gridLootItem in Children.OfType<GridLootItem>()) gridLootItem.Dispose();
+            uint curtime = Engine.Ticks;
 
             int count = 0;
             _pagesCount = 1;
+            //_corpse.Items.Added -= ItemsOnAdded;
+            ////_corpse.Items.Removed -= ItemsOnRemoved;
+            //_corpse.Items.Added += ItemsOnAdded;
+            ////_corpse.Items.Removed += ItemsOnRemoved;
 
             foreach (Item item in _corpse.Items)
             {
-                if (item.IsCoin && Engine.Profile.Current.AutoLootGold)
-                {
-                    GameActions.GrabItem(item, (ushort)item.Amount);
-                    //GameActions.Print("[格柵拾取]: 拾取" + item.Amount.ToString() + "金币。");
-                    continue;
-                }
-                if (item == null || item.ItemData.Layer == (int) Layer.Hair || item.ItemData.Layer == (int) Layer.Beard || item.ItemData.Layer == (int) Layer.Face)
+                //if (item.IsCoin && Engine.Profile.Current.AutoLootGold && Engine.Profile.Current.GridLootType < 2)
+                //{
+                //    //if (curtime - DELAY > time)
+                //        GameActions.GrabItem(item, (ushort)item.Amount);
+                //    //GameActions.Print("[格柵拾取]: 拾取" + item.Amount.ToString() + "金币。");
+                //    looting = true;
+                //    //time = curtime;
+                //    return;
+
+                //}
+                //bool contain = false;
+                //if (Engine.Profile.Current.LootList == null)
+                //    Engine.Profile.Current.LootList = new List<ushort[]>();
+                //foreach (ushort[] i in Engine.Profile.Current.LootList)
+                //{
+                //    if (item.Graphic == i[0] && item.Hue == i[1])
+                //    {
+                //        contain = true;
+                //        break;
+                //    }
+
+                //}
+                //if (contain && Engine.Profile.Current.AutoLootItem && Engine.Profile.Current.GridLootType < 2)
+                //{
+                //    //if (curtime - DELAY > time)
+                //        GameActions.GrabItem(item, (ushort)item.Amount);
+                //    //time = curtime;
+                //    looting = true;
+                //    return;
+
+                //}
+                //looting = false;
+                if (item == null || item.ItemData.Layer == (int)Layer.Hair || item.ItemData.Layer == (int)Layer.Beard || item.ItemData.Layer == (int)Layer.Face)
                     continue;
 
-                GridLootItem gridItem = new GridLootItem(item,size);
+                GridLootItem gridItem = new GridLootItem(item, size);
 
-                if (x > _background.Width - gridItem.Width -st)
+                if (x > _background.Width - gridItem.Width - st)
                 {
                     x = st;
                     y += gridItem.Height + st;
@@ -168,8 +224,17 @@ namespace ClassicUO.Game.UI.Gumps
             //    //GameActions.Print("[格柵拾取]: 尸體是空的!");
             //    Dispose();
             //}
-        }
 
+           
+        }
+        //private void ItemsOnRemoved(object sender, CollectionChangedEventArgs<Serial> e)
+        //{
+        //    foreach (GridLootGump v in Children.OfType<GridLootGump>().Where(s => e.Contains(s.LocalSerial)))
+        //        v.Dispose();
+        //}
+
+    
+        
         public override void Dispose()
         {
             if (_corpse != null)
@@ -215,6 +280,7 @@ namespace ClassicUO.Game.UI.Gumps
                 SelectedObject.LastObject = _corpse;
                 SelectedObject.CorpseObject = _corpse;
             }
+  
         }
 
         protected override void OnMouseExit(int x, int y)
@@ -229,7 +295,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             private readonly TextureControl _texture;
 
-            public GridLootItem(Serial serial,int size)
+            public GridLootItem(Serial serial, int size)
             {
                 _serial = serial;
 
@@ -286,6 +352,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Height = background.Height + 15;
 
                 WantUpdateSize = false;
+
             }
 
             public override bool Draw(UltimaBatcher2D batcher, int x, int y)

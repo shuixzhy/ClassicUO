@@ -34,9 +34,6 @@ namespace ClassicUO.Configuration
         public Settings()
         {
         }
-        [JsonProperty(PropertyName = "Language")]
-        public string Language { get; set; } = "language.cht";
-
         [JsonProperty(PropertyName = "username")]
         public string Username { get; set; } = string.Empty;
 
