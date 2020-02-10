@@ -14,7 +14,7 @@ ClassicUO 跨平台支持:
 * MacOS
 
 # 运行
-随后将推出使用方法的介绍。目前可参看[Wiki](https://github.com/andreakarasho/ClassicUO/wiki)。
+参看[Wiki](https://gitee.com/shuix/ClassicUO/wikis)。
 
 
 # 生成 (Windows)
